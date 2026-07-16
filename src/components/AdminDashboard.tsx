@@ -185,7 +185,8 @@ export default function AdminDashboard({ onClose }: AdminProps) {
                               </div>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <p className="text-brand-400 font-bold text-sm">£{Number(p.selling_price).toLocaleString()}</p>
+                              <p className="text-brand-400 font-bold text-sm">£{(Number(p.selling_price) * Number(p.pieces || 1)).toLocaleString()}</p>
+                              {Number(p.pieces) > 1 && <p className="text-white/30 text-[10px]">{p.pieces}×£{Number(p.selling_price).toLocaleString()}</p>}
                               <span className={'text-[10px] px-2 py-0.5 rounded-full ' + (p.show_on_website ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400')}>{p.show_on_website ? 'Listed' : 'Hidden'}</span>
                             </div>
                           </div>
@@ -221,7 +222,8 @@ export default function AdminDashboard({ onClose }: AdminProps) {
                               <p className="text-white font-semibold text-sm truncate">{p.item_name}</p>
                               <p className="text-white/50 text-xs mt-0.5">{p.category} • {p.size || 'N/A'} • {p.condition}</p>
                               <div className="flex items-center gap-3 mt-2">
-                                <span className="text-brand-400 font-bold text-sm">£{Number(p.selling_price).toLocaleString()}</span>
+                                <span className="text-brand-400 font-bold text-sm">£{(Number(p.selling_price) * Number(p.pieces || 1)).toLocaleString()}</span>
+                            {Number(p.pieces) > 1 && <span className="text-white/30 text-[10px] ml-1">({p.pieces}×£{Number(p.selling_price).toLocaleString()})</span>}
                                 <span className="text-white/40 text-xs">Stock: {p.pieces}</span>
                               </div>
                             </div>

@@ -33,10 +33,14 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
 
   const cur = media[idx];
 
-  const wp = `Hi! I'm interested in "${product.item_name}" (£${Number(product.selling_price).toLocaleString()}). Please let me know the shipping cost to my country.`;
+  const pieces = Number(product.pieces) || 1;
+  const unitPrice = Number(product.selling_price) || 0;
+  const totalPrice = unitPrice * pieces;
+
+  const wp = `Hi! I'm interested in "${product.item_name}" (£${totalPrice.toLocaleString()}${pieces > 1 ? ' for ' + pieces + ' pieces' : ''}). Please let me know the shipping cost to my country.`;
   const wu = `https://wa.me/923238226427?text=${encodeURIComponent(wp)}`;
   const es = `Inquiry: ${product.item_name}`;
-  const eb = `Hi EraVault,\n\nI'm interested in "${product.item_name}" (£${Number(product.selling_price).toLocaleString()}).\n\nPlease let me know the shipping cost to my country.\n\nThank you!`;
+  const eb = `Hi EraVault,\n\nI'm interested in "${product.item_name}" (£${totalPrice.toLocaleString()}${pieces > 1 ? ' for ' + pieces + ' pieces' : ''}).\n\nPlease let me know the shipping cost to my country.\n\nThank you!`;
   const eu = `mailto:eravaultvintage@gmail.com?subject=${encodeURIComponent(es)}&body=${encodeURIComponent(eb)}`;
 
   const cond = () => {
@@ -155,8 +159,13 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                 <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-950 leading-tight">{product.item_name}</h2>
 
                 <div>
-                  <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent">£{Number(product.selling_price).toLocaleString()}</p>
-                  <p className="text-xs text-brand-500 mt-1.5 flex items-center gap-1.5">
+                  <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent">£{totalPrice.toLocaleString()}</p>
+                  {pieces > 1 && (
+                    <p className="text-sm text-brand-600 mt-1 font-medium">
+                      £{unitPrice.toLocaleString()} × {pieces} pieces
+                    </p>
+                  )}
+                  <p className="text-xs text-brand-400 mt-1 flex items-center gap-1.5">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     + Shipping (depends on your country)
                   </p>
