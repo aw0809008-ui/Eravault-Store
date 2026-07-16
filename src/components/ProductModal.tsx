@@ -34,10 +34,10 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % imageUrls.length);
   const prevImage = () => setCurrentImage((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
 
-  const whatsappMessage = `Hi! I'm interested in "${product.item_name}" (Rs. ${Number(product.selling_price).toLocaleString()})`;
+  const whatsappMessage = `Hi! I'm interested in "${product.item_name}" (£${Number(product.selling_price).toLocaleString()}). Please let me know the shipping cost to my country.`;
   const whatsappUrl = `https://wa.me/923238226427?text=${encodeURIComponent(whatsappMessage)}`;
   const emailSubject = `Inquiry: ${product.item_name}`;
-  const emailBody = `Hi EraVault,\n\nI'm interested in "${product.item_name}" (Rs. ${Number(product.selling_price).toLocaleString()}).\n\nPlease share more details.\n\nThank you!`;
+  const emailBody = `Hi EraVault,\n\nI'm interested in "${product.item_name}" (£${Number(product.selling_price).toLocaleString()}).\n\nPlease let me know the shipping cost to my country.\n\nThank you!`;
   const emailUrl = `mailto:eravaultvintage@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
 
   const conditionColor = () => {
@@ -160,8 +160,12 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
             <h2 className="font-display text-3xl sm:text-4xl font-bold text-brand-950 mb-4 leading-tight">
               {product.item_name}
             </h2>
-            <p className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent mb-8">
-              Rs. {Number(product.selling_price).toLocaleString()}
+            <p className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent mb-2">
+              £{Number(product.selling_price).toLocaleString()}
+            </p>
+            <p className="text-sm text-brand-500 mb-6 flex items-center gap-1.5">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              + Shipping (depends on your country)
             </p>
 
             {/* Details Grid */}
@@ -186,6 +190,24 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                   <p className="font-bold text-brand-900 text-lg">{product.pieces} piece{product.pieces !== 1 ? 's' : ''}</p>
                 </div>
               )}
+            </div>
+
+            {/* Shipping Info */}
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-4 border border-blue-200 mb-8">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-bold text-blue-900 text-sm">Worldwide Shipping</p>
+                  <p className="text-blue-700 text-xs mt-1 leading-relaxed">
+                    Shipping cost depends on your country. Buyer pays shipping charges. 
+                    Contact us for exact shipping rates to your location.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Videos */}

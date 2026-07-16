@@ -29,7 +29,7 @@ export default function AboutSection() {
   const stats = [
     { value: '500+', label: 'Items Sold', icon: '🛍️' },
     { value: '100%', label: 'Authentic', icon: '✓' },
-    { value: '50+', label: 'Categories', icon: '📦' },
+    { value: '🌍', label: 'Worldwide Shipping', icon: '📦' },
     { value: '24/7', label: 'Support', icon: '💬' },
   ];
 

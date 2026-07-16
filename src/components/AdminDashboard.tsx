@@ -216,7 +216,7 @@ export default function AdminDashboard({ onClose }: AdminProps) {
                     {[
                       { label: 'Total Products', value: stats.totalProducts, icon: '📦', gradient: 'from-blue-500 to-cyan-500' },
                       { label: 'Listed on Website', value: stats.listedProducts, icon: '🌐', gradient: 'from-green-500 to-emerald-500' },
-                      { label: 'Total Value', value: `Rs. ${stats.totalValue.toLocaleString()}`, icon: '💰', gradient: 'from-brand-500 to-brand-600' },
+                      { label: 'Total Value', value: `£${stats.totalValue.toLocaleString()}`, icon: '💰', gradient: 'from-brand-500 to-brand-600' },
                       { label: 'Categories', value: stats.totalCategories, icon: '🏷️', gradient: 'from-purple-500 to-pink-500' },
                     ].map((stat, i) => (
                       <div key={i} className="admin-card rounded-2xl p-6 animate-fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>
@@ -247,7 +247,7 @@ export default function AdminDashboard({ onClose }: AdminProps) {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-brand-400 font-bold">Rs. {Number(p.selling_price).toLocaleString()}</p>
+                            <p className="text-brand-400 font-bold">£{Number(p.selling_price).toLocaleString()}</p>
                             <span className={`text-xs px-2 py-1 rounded-full ${p.show_on_website ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                               {p.show_on_website ? 'Listed' : 'Hidden'}
                             </span>
@@ -311,7 +311,7 @@ export default function AdminDashboard({ onClose }: AdminProps) {
                                 </div>
                               </td>
                               <td className="p-4 text-white/70">{p.category}</td>
-                              <td className="p-4 font-bold text-brand-400">Rs. {Number(p.selling_price).toLocaleString()}</td>
+                              <td className="p-4 font-bold text-brand-400">£{Number(p.selling_price).toLocaleString()}</td>
                               <td className="p-4">{p.pieces}</td>
                               <td className="p-4">
                                 <button
@@ -463,7 +463,7 @@ function ProductForm({
           </div>
           
           <div>
-            <label className="block text-white/70 text-sm mb-2">Selling Price (Rs.) *</label>
+            <label className="block text-white/70 text-sm mb-2">Selling Price (£) *</label>
             <input
               type="number"
               required

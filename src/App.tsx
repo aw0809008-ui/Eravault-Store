@@ -67,7 +67,7 @@ export default function App() {
               { icon: '✓', text: '100% Authentic', color: 'text-emerald-600' },
               { icon: '📦', text: 'Secure Packaging', color: 'text-blue-600' },
               { icon: '💬', text: 'WhatsApp Support', color: 'text-green-600' },
-              { icon: '🔄', text: 'Easy Returns', color: 'text-purple-600' },
+              { icon: '🌍', text: 'Worldwide Shipping', color: 'text-purple-600' },
             ].map((item, i) => (
               <div 
                 key={i} 
