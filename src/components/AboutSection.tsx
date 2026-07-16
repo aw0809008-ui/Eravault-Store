@@ -34,11 +34,19 @@ export default function AboutSection() {
   ];
 
   return (
-    <section id="about" className="py-12 sm:py-20 md:py-32 bg-white relative overflow-hidden section-3d-divider">
+    <section id="about" className="py-12 sm:py-20 md:py-32 relative overflow-hidden section-3d-divider" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #faf7f2 50%, #ffffff 100%)' }}>
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-50/50 to-transparent" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-100/30 rounded-full blur-3xl animate-morph-blob" />
-      <div className="absolute top-20 right-10 w-64 h-64 bg-brand-200/20 rounded-full blur-3xl animate-float-slow" style={{ animationDelay: '1s' }} />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-50/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-100/20 rounded-full blur-3xl hidden md:block" />
+        <div className="absolute top-20 right-10 w-64 h-64 bg-brand-200/15 rounded-full blur-3xl hidden md:block" />
+        {/* Diamond pattern */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.02]" xmlns="http://www.w3.org/2000/svg">
+          <defs><pattern id="diamonds" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><rect x="14" y="0" width="12" height="12" transform="rotate(45 20 6)" fill="none" stroke="#885935" strokeWidth="0.5" /></pattern></defs>
+          <rect width="100%" height="100%" fill="url(#diamonds)" />
+        </svg>
+        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-brand-300/15 to-transparent" />
+      </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">

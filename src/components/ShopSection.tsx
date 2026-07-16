@@ -43,11 +43,27 @@ export default function ShopSection({ products, categories, loading, onSelectPro
   const clearAll = () => { setActiveCategory('All'); setFilterSize('All'); setFilterCondition('All'); setSearchQuery(''); };
 
   return (
-    <section id="shop" className="py-12 sm:py-20 md:py-28 relative overflow-hidden">
-      {/* 3D Background elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 -left-20 w-72 h-72 bg-brand-200/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 -right-20 w-96 h-96 bg-brand-100/30 rounded-full blur-3xl animate-float-slow" style={{ animationDelay: '2s' }} />
+    <section id="shop" className="py-12 sm:py-20 md:py-28 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #faf7f2 0%, #f5efe4 30%, #faf7f2 60%, #f5efe4 100%)' }}>
+      {/* Background decorations */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Soft gradient blobs */}
+        <div className="absolute top-20 -left-20 w-72 h-72 bg-brand-200/15 rounded-full blur-3xl hidden md:block" />
+        <div className="absolute bottom-40 -right-20 w-80 h-80 bg-brand-100/20 rounded-full blur-3xl hidden md:block" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-100/10 rounded-full blur-3xl hidden md:block" />
+        
+        {/* Subtle geometric pattern — SVG dots grid */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
+          <defs><pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#885935" /></pattern></defs>
+          <rect width="100%" height="100%" fill="url(#dots)" />
+        </svg>
+        
+        {/* Corner decorative shapes */}
+        <div className="absolute top-0 right-0 w-64 h-64 hidden md:block" style={{ background: 'radial-gradient(circle at 100% 0%, rgba(196,154,98,0.06) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-0 left-0 w-64 h-64 hidden md:block" style={{ background: 'radial-gradient(circle at 0% 100%, rgba(196,154,98,0.06) 0%, transparent 70%)' }} />
+        
+        {/* Thin decorative lines */}
+        <div className="absolute top-32 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-300/10 to-transparent hidden md:block" />
+        <div className="absolute bottom-48 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-300/10 to-transparent hidden md:block" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
