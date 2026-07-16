@@ -1,67 +1,92 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Heart, Menu, Search, X } from 'lucide-react';
 
-export default function Navbar({ onSearchOpen }: { onSearchOpen: () => void }) {
-  const [scrolled, setScrolled] = useState(false);
-  const [mob, setMob] = useState(false);
-  useEffect(() => { const f = () => setScrolled(scrollY > 40); addEventListener('scroll', f); return () => removeEventListener('scroll', f); }, []);
+interface NavbarProps {
+  favoritesCount: number;
+  onSearch: () => void;
+  onFavorites: () => void;
+}
 
-  const links = [{ n:'Home', h:'#' },{ n:'Collection', h:'#collection' },{ n:'Contact', h:'#contact' }];
+const links = [
+  ['New drop', '#collection'],
+  ['Our story', '#story'],
+  ['How it works', '#how-it-works'],
+  ['FAQ', '#faq'],
+];
+
+export default function Navbar({ favoritesCount, onSearch, onFavorites }: NavbarProps) {
+  const [open, setOpen] = useState(false);
+  const [solid, setSolid] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setSolid(window.scrollY > 30);
+    onScroll();
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <>
-      <motion.header initial={{ y:-100 }} animate={{ y:0 }} transition={{ duration:.8 }}
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-700 ${scrolled ? 'glass-strong shadow-[0_8px_40px_rgba(0,0,0,.5)]' : 'bg-transparent'}`}
-        style={ scrolled ? { background:'rgba(2,0,8,.75)', backdropFilter:'blur(30px)', borderBottom:'1px solid rgba(255,255,255,.03)' } : {} }>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
-          <a href="#" className="flex items-center gap-3 group">
-            <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--gold)] via-[#f5c842] to-[var(--gold)] flex items-center justify-center shadow-[0_0_25px_rgba(212,168,83,.3)] group-hover:shadow-[0_0_40px_rgba(212,168,83,.5)] transition-shadow">
-                <span className="text-black font-black text-base" style={{ fontFamily:"'Orbitron',sans-serif" }}>E</span>
-              </div>
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[var(--gold)] to-orange-500 blur-xl opacity-30 group-hover:opacity-50 transition-opacity" />
-            </div>
-            <div>
-              <span className="text-xl font-bold" style={{ fontFamily:"'Playfair Display',serif" }}>
-                <span className="text-gradient-gold">Era</span><span className="text-white">Vault</span>
-              </span>
-              <div className="text-[7px] tracking-[.35em] uppercase text-[var(--gold)]/30 font-semibold" style={{ fontFamily:"'Orbitron',sans-serif" }}>Premium Vintage</div>
-            </div>
+      <header className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${solid ? 'border-black/10 bg-[#f3f0e8]/95 text-[#171713] backdrop-blur-xl' : 'border-white/20 bg-transparent text-white'}`}>
+        <div className="mx-auto flex h-20 max-w-[1500px] items-center justify-between px-5 sm:px-8 lg:px-12">
+          <a href="#top" className="focus-ring display text-3xl font-semibold tracking-[-0.06em]">
+            EraVault
           </a>
 
-          <nav className="hidden md:flex items-center gap-1">
-            {links.map(l => (
-              <a key={l.n} href={l.h} className="relative px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[.2em] text-white/30 hover:text-[var(--gold)] transition-all group" style={{ fontFamily:"'Space Grotesk',sans-serif" }}>
-                {l.n}
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-[var(--gold)] to-[var(--purple)] group-hover:w-3/4 transition-all duration-300 rounded-full shadow-[0_0_10px_rgba(212,168,83,.5)]" />
+          <nav className="hidden items-center gap-8 lg:flex">
+            {links.map(([label, href]) => (
+              <a key={label} href={href} className="underline-link focus-ring text-xs font-bold uppercase tracking-[0.17em]">
+                {label}
               </a>
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
-            <button onClick={onSearchOpen} className="w-10 h-10 rounded-xl glass flex items-center justify-center text-white/30 hover:text-[var(--gold)] transition-colors"><Search className="w-4 h-4" /></button>
-            <button onClick={() => setMob(true)} className="md:hidden w-10 h-10 rounded-xl glass flex items-center justify-center text-white/30"><Menu className="w-5 h-5" /></button>
+          <div className="flex items-center gap-1">
+            <button onClick={onSearch} aria-label="Search collection" className="focus-ring grid h-11 w-11 place-items-center transition-opacity hover:opacity-60">
+              <Search className="h-5 w-5" strokeWidth={1.7} />
+            </button>
+            <button onClick={onFavorites} aria-label="View saved items" className="focus-ring relative grid h-11 w-11 place-items-center transition-opacity hover:opacity-60">
+              <Heart className="h-5 w-5" strokeWidth={1.7} />
+              {favoritesCount > 0 && (
+                <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-[#d8ff45] px-1 text-[10px] font-extrabold text-[#171713]">
+                  {favoritesCount}
+                </span>
+              )}
+            </button>
+            <button onClick={() => setOpen(true)} aria-label="Open menu" className="focus-ring grid h-11 w-11 place-items-center lg:hidden">
+              <Menu className="h-5 w-5" />
+            </button>
           </div>
         </div>
-        {scrolled && <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/20 to-transparent" />}
-      </motion.header>
+      </header>
 
       <AnimatePresence>
-        {mob && (
-          <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} className="fixed inset-0 z-[100]" style={{ background:'rgba(2,0,8,.97)', backdropFilter:'blur(30px)' }}>
-            <div className="flex flex-col h-full px-8 py-8">
-              <div className="flex justify-between items-center mb-16">
-                <span className="text-2xl font-bold" style={{ fontFamily:"'Playfair Display',serif" }}><span className="text-[var(--gold)]">Era</span><span className="text-white">Vault</span></span>
-                <button onClick={() => setMob(false)} className="w-12 h-12 rounded-2xl glass flex items-center justify-center text-white"><X className="w-6 h-6" /></button>
+        {open && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[80] bg-[#171713] text-white lg:hidden">
+            <div className="flex h-full flex-col px-6 py-6">
+              <div className="flex items-center justify-between">
+                <span className="display text-3xl font-semibold tracking-[-0.06em]">EraVault</span>
+                <button onClick={() => setOpen(false)} aria-label="Close menu" className="focus-ring grid h-12 w-12 place-items-center border border-white/20">
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <div className="flex-1 flex flex-col justify-center gap-3">
-                {links.map((l,i) => (
-                  <motion.a key={l.n} initial={{ opacity:0, x:-50 }} animate={{ opacity:1, x:0 }} transition={{ delay:i*.1 }}
-                    href={l.h} onClick={() => setMob(false)}
-                    className="text-4xl font-bold text-white/60 hover:text-[var(--gold)] transition-all py-3 border-b border-white/[.03] hover:pl-4" style={{ fontFamily:"'Playfair Display',serif" }}>{l.n}</motion.a>
+              <nav className="my-auto">
+                {links.map(([label, href], index) => (
+                  <motion.a
+                    key={label}
+                    initial={{ opacity: 0, x: -24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.07 }}
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    className="display block border-b border-white/15 py-5 text-5xl"
+                  >
+                    {label}
+                  </motion.a>
                 ))}
-              </div>
+              </nav>
+              <p className="text-xs uppercase tracking-[0.2em] text-white/50">One-off clothing. No restocks.</p>
             </div>
           </motion.div>
         )}

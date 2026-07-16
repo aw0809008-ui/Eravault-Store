@@ -1,62 +1,55 @@
-import { Heart, MessageCircle, ArrowUp } from 'lucide-react';
+import { ArrowUpRight, ExternalLink, MessageCircle } from 'lucide-react';
+import { STORE, getWhatsAppUrl } from '../lib/store';
 
 export default function Footer() {
   return (
-    <footer id="contact" className="relative overflow-hidden" style={{ background:'#020008' }}>
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/30 to-transparent" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[var(--gold)]/[.02] rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
+    <footer id="contact" className="bg-[#171713] text-white">
+      <div className="mx-auto max-w-[1500px] px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+        <div className="grid gap-14 border-b border-white/15 pb-16 lg:grid-cols-[1.5fr_0.6fr_0.6fr_0.8fr]">
+          <div>
+            <p className="display text-6xl font-semibold tracking-[-0.07em] sm:text-8xl">EraVault.</p>
+            <p className="mt-6 max-w-md text-sm leading-7 text-white/55">Curated one-off vintage clothing. Every piece is inspected, photographed and listed by the EraVault team.</p>
+          </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
-          <div className="md:col-span-5">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--gold)] to-orange-500 flex items-center justify-center shadow-[0_0_20px_rgba(212,168,83,.25)]">
-                <span className="text-black font-black" style={{ fontFamily:"'Orbitron',sans-serif" }}>E</span>
-              </div>
-              <span className="text-xl font-bold" style={{ fontFamily:"'Playfair Display',serif" }}><span className="text-gradient-gold">Era</span><span className="text-white">Vault</span></span>
+          <div>
+            <p className="mb-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/40">Explore</p>
+            <div className="space-y-3 text-sm">
+              <a href="#collection" className="block hover:text-[#d8ff45]">Latest drop</a>
+              <a href="#story" className="block hover:text-[#d8ff45]">Our story</a>
+              <a href="#how-it-works" className="block hover:text-[#d8ff45]">How it works</a>
+              <a href="#faq" className="block hover:text-[#d8ff45]">FAQ</a>
             </div>
-            <p className="text-white/20 text-sm leading-relaxed max-w-sm mb-8">Where history meets luxury. Every piece authenticated and ready to become part of your story.</p>
-            <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-green-500/[.06] border border-green-500/15 text-green-400 hover:bg-green-500/10 transition-all group">
-              <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="font-semibold text-sm" style={{ fontFamily:"'Space Grotesk',sans-serif" }}>WhatsApp</span>
+          </div>
+
+          <div>
+            <p className="mb-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/40">Policies</p>
+            <div className="space-y-3 text-sm text-white/70">
+              <p>Condition guide</p>
+              <p>Tracked shipping</p>
+              <p>Returns by enquiry</p>
+              <p>Privacy</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/40">Talk to us</p>
+            <a href={getWhatsAppUrl()} target="_blank" rel="noreferrer" className="group flex items-center justify-between border-b border-white/25 py-3 text-sm hover:border-[#d8ff45] hover:text-[#d8ff45]">
+              WhatsApp <MessageCircle className="h-4 w-4" />
+            </a>
+            <a href={`mailto:${STORE.email}`} className="group flex items-center justify-between border-b border-white/25 py-3 text-sm hover:border-[#d8ff45] hover:text-[#d8ff45]">
+              Email <ArrowUpRight className="h-4 w-4" />
+            </a>
+            <a href={STORE.instagram} target="_blank" rel="noreferrer" className="group flex items-center justify-between border-b border-white/25 py-3 text-sm hover:border-[#d8ff45] hover:text-[#d8ff45]">
+              Instagram <ExternalLink className="h-4 w-4" />
             </a>
           </div>
-          <div className="md:col-span-3">
-            <h4 className="text-[9px] font-bold tracking-[.35em] uppercase text-[var(--gold)]/40 mb-6" style={{ fontFamily:"'Orbitron',sans-serif" }}>Links</h4>
-            {['Home','Collection','Contact'].map(l => (
-              <a key={l} href={l==='Home'?'#':`#${l.toLowerCase()}`} className="block text-white/20 hover:text-[var(--gold)] transition-all text-sm hover:translate-x-2 py-1.5">{l}</a>
-            ))}
-          </div>
-          <div className="md:col-span-4">
-            <h4 className="text-[9px] font-bold tracking-[.35em] uppercase text-[var(--gold)]/40 mb-6" style={{ fontFamily:"'Orbitron',sans-serif" }}>Why Us</h4>
-            {['💎 100% Authenticated','📦 Secure Delivery','👨‍💼 Expert Curation','⚡ 24/7 Support'].map(t => (
-              <div key={t} className="text-sm text-white/20 py-1.5">{t}</div>
-            ))}
-          </div>
         </div>
 
-        {/* Marquee */}
-        <div className="overflow-hidden py-4 border-y border-white/[.02] mb-10">
-          <div className="marquee flex gap-16 whitespace-nowrap">
-            {Array.from({ length:12 }).map((_,i) => (
-              <span key={i} className="text-[10px] tracking-[.4em] uppercase text-white/[.02] font-black" style={{ fontFamily:"'Orbitron',sans-serif" }}>
-                EraVault ◆ Premium ◈ Authenticated ◇ Curated ✦
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-white/10 text-xs">© {new Date().getFullYear()} EraVault</p>
-          <p className="text-white/10 text-xs flex items-center gap-1">Made with <Heart className="w-3 h-3 text-red-500/50 fill-red-500/50" /> for vintage lovers</p>
+        <div className="flex flex-col gap-3 pt-7 text-[10px] font-bold uppercase tracking-[0.16em] text-white/35 sm:flex-row sm:items-center sm:justify-between">
+          <p>Copyright {new Date().getFullYear()} EraVault</p>
+          <p>Archive clothing / Next era</p>
         </div>
       </div>
-
-      <button onClick={() => scrollTo({ top:0, behavior:'smooth' })}
-        className="fixed bottom-6 right-6 z-40 w-11 h-11 rounded-xl glass flex items-center justify-center text-white/20 hover:text-[var(--gold)] transition-all group">
-        <ArrowUp className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
-      </button>
     </footer>
   );
 }
