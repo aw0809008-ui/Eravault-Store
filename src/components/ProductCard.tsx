@@ -25,18 +25,18 @@ export default function ProductCard({ product, index, onSelect }: ProductCardPro
     }
   };
 
-  // 3D tilt on mouse move
+  // 3D tilt — desktop only
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || window.innerWidth < 768) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    cardRef.current.style.transform = `perspective(800px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) scale(1.02)`;
+    cardRef.current.style.transform = `perspective(800px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) scale(1.01)`;
   };
 
   const handleMouseLeave = () => {
     if (!cardRef.current) return;
-    cardRef.current.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) scale(1)';
+    cardRef.current.style.transform = '';
   };
 
   return (

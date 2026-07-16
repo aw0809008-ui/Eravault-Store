@@ -7,12 +7,11 @@ interface HeroProps {
 export default function Hero({ onShopNow }: HeroProps) {
   const bgRef = useRef<HTMLDivElement>(null);
 
-  // Parallax on scroll
+  // Parallax on scroll — desktop only
   useEffect(() => {
+    if (window.innerWidth < 768) return;
     const handleScroll = () => {
-      if (bgRef.current) {
-        bgRef.current.style.transform = `translateY(${window.scrollY * 0.3}px)`;
-      }
+      if (bgRef.current) bgRef.current.style.transform = `translateY(${window.scrollY * 0.3}px)`;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -26,8 +25,8 @@ export default function Hero({ onShopNow }: HeroProps) {
       
       <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-brand-950/60 to-black/80" />
       
-      {/* Floating orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Floating orbs — hidden on mobile for performance */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none hidden md:block">
         <div className="absolute top-[15%] left-[8%] w-32 h-32 rounded-full bg-brand-500/10 blur-3xl animate-float" />
         <div className="absolute top-[30%] right-[12%] w-48 h-48 rounded-full bg-brand-400/10 blur-3xl animate-float-slow" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-[25%] left-[25%] w-40 h-40 rounded-full bg-purple-500/8 blur-3xl animate-float" style={{ animationDelay: '2s' }} />

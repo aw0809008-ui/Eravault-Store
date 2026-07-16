@@ -54,17 +54,15 @@ export default function ProductModal({ product, onClose }: Props) {
     return 'from-gray-500 to-gray-600';
   };
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   const slideStyle = (i: number): React.CSSProperties => {
     const diff = i - idx;
     const d = dragging.current ? dragX / 5 : 0;
-    return {
-      position: 'absolute', inset: 0,
-      transform: `perspective(1200px) translateX(${diff * 100 + d}%) rotateY(${diff * -35 + d * 0.08}deg) scale(${diff === 0 ? 1 : 0.85})`,
-      opacity: Math.abs(diff) > 1 ? 0 : diff === 0 ? 1 : 0.5,
-      transition: dragging.current ? 'none' : 'all 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
-      zIndex: 10 - Math.abs(diff),
-      pointerEvents: diff === 0 ? 'auto' : 'none',
-    } as React.CSSProperties;
+    if (isMobile) {
+      return { position: 'absolute', inset: 0, transform: `translateX(${diff * 100 + d}%)`, opacity: Math.abs(diff) > 1 ? 0 : 1, transition: dragging.current ? 'none' : 'transform 0.3s ease-out', zIndex: 10 - Math.abs(diff), pointerEvents: diff === 0 ? 'auto' : 'none' } as React.CSSProperties;
+    }
+    return { position: 'absolute', inset: 0, transform: `perspective(1200px) translateX(${diff * 100 + d}%) rotateY(${diff * -30}deg) scale(${diff === 0 ? 1 : 0.88})`, opacity: Math.abs(diff) > 1 ? 0 : diff === 0 ? 1 : 0.5, transition: dragging.current ? 'none' : 'all 0.4s cubic-bezier(0.32, 0.72, 0, 1)', zIndex: 10 - Math.abs(diff), pointerEvents: diff === 0 ? 'auto' : 'none' } as React.CSSProperties;
   };
 
   return (
@@ -96,11 +94,11 @@ export default function ProductModal({ product, onClose }: Props) {
                 onMouseLeave={() => { if (dragging.current) onEnd(); }}
               >
                 {total > 0 ? media.map((item, i) => (
-                  <div key={i} className="flex items-center justify-center will-change-transform" style={slideStyle(i)}>
+                  <div key={i} className="flex items-center justify-center" style={slideStyle(i)}>
                     {item.type === 'image' ? (
-                      <img src={item.url} alt={product.item_name} className="w-full h-full object-contain drop-shadow-xl" draggable={false} />
+                      <img src={item.url} alt={product.item_name} className="w-full h-full object-contain" draggable={false} />
                     ) : (
-                      <video src={item.url} controls={i === idx} playsInline className="w-full h-full object-contain" draggable={false} />
+                      <video src={item.url} controls playsInline preload="none" className="w-full h-full object-contain" draggable={false} />
                     )}
                   </div>
                 )) : (
