@@ -19,9 +19,9 @@ export default function AboutSection() {
       gradient: 'from-cyan-500 to-blue-500',
     },
     {
-      icon: '💬',
-      title: 'WhatsApp Support',
-      desc: 'Direct support for seamless shopping and instant responses.',
+      icon: '📧',
+      title: 'Email & Instagram',
+      desc: 'Direct support via email and Instagram for instant responses.',
       gradient: 'from-brand-500 to-brand-700',
     },
   ];
@@ -30,7 +30,7 @@ export default function AboutSection() {
     { value: '500+', label: 'Items Sold', icon: '🛍️' },
     { value: '100%', label: 'Authentic', icon: '✓' },
     { value: '🌍', label: 'Worldwide Shipping', icon: '📦' },
-    { value: '24/7', label: 'Support', icon: '💬' },
+    { value: '24/7', label: 'Support', icon: '📧' },
   ];
 
   return (

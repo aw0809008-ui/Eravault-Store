@@ -19,6 +19,7 @@ export interface InventoryItem {
   show_on_website: boolean;
   created_at?: string;
   description?: string;
+  listing_link?: string;
 }
 
 // Fetch products for website (only show_on_website = true)

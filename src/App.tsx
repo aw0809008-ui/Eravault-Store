@@ -8,7 +8,7 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import ProductModal from './components/ProductModal';
-import WhatsAppFloat from './components/WhatsAppFloat';
+
 import AdminDashboard from './components/AdminDashboard';
 import SplashScreen from './components/SplashScreen';
 import BackToTop from './components/BackToTop';
@@ -75,7 +75,7 @@ export default function App() {
             {[
               { icon: '✓', text: '100% Authentic', color: 'text-emerald-600' },
               { icon: '📦', text: 'Secure Packaging', color: 'text-blue-600' },
-              { icon: '💬', text: 'WhatsApp Support', color: 'text-green-600' },
+              { icon: '📸', text: 'Follow on Instagram', color: 'text-pink-600' },
               { icon: '🌍', text: 'Worldwide Shipping', color: 'text-purple-600' },
             ].map((item, i) => (
               <div 
@@ -100,7 +100,7 @@ export default function App() {
       <AboutSection />
       <ContactSection />
       <Footer />
-      <WhatsAppFloat />
+
       <BackToTop />
 
       {selectedProduct && (
