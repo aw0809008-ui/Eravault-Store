@@ -372,8 +372,8 @@ function ProductForm({ product, categories, onSave, onCancel }: {
                 const isFirst = i === 0;
                 return (
                   <div key={i} className={`relative rounded-2xl overflow-hidden border transition-all ${isSelected ? 'border-brand-400 ring-2 ring-brand-400/40' : 'border-white/10'} bg-white/5`}>
-                    <div className="relative aspect-square overflow-hidden">
-                      <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                    <div className="relative aspect-square overflow-hidden cursor-pointer" onDoubleClick={() => { set('thumbnail', url); makeFirstImage(url); }}>
+                      <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" draggable={false} />
                       <div className="absolute top-1.5 left-1.5 flex gap-1">
                         <span className="px-1.5 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-bold">#{i + 1}</span>
                         {isFirst && <span className="px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">1st</span>}
@@ -427,7 +427,7 @@ function ProductForm({ product, categories, onSave, onCancel }: {
                 );
               })}
             </div>
-            <p className="text-white/40 text-[11px] mt-2">Website pe thumbnail ke liye selected image dikhegi. Agar thumbnail select nahi karoge to first image automatically show hogi.</p>
+            <p className="text-white/40 text-[11px] mt-2">💡 Image pe <span className="text-brand-400 font-bold">double-click</span> karo = instant thumbnail + first image ban jayegi. Ya buttons use karo.</p>
           </div>
         )}
 
