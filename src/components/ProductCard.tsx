@@ -1,82 +1,100 @@
-import { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Heart, Play, Plus } from 'lucide-react';
-import type { StoreItem } from '../lib/supabase';
-import { MEDIA, conditionLabel } from '../lib/store';
+import type { InventoryItem } from '../lib/supabase';
 
 interface ProductCardProps {
-  favorite: boolean;
+  product: InventoryItem;
   index: number;
-  item: StoreItem;
-  onFavorite: (id: string) => void;
-  onOpen: (item: StoreItem) => void;
+  onSelect: (product: InventoryItem) => void;
 }
 
-export default function ProductCard({ favorite, index, item, onFavorite, onOpen }: ProductCardProps) {
-  const shell = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const cover = item.images[0] || MEDIA.racks;
-  const secondary = item.images[1];
-  const isSold = item.status.toLowerCase() === 'sold';
+export default function ProductCard({ product, index, onSelect }: ProductCardProps) {
+  const imageUrls = product.images
+    ? product.images.split(',').map((url: string) => url.trim()).filter(Boolean)
+    : [];
+  const firstImage = imageUrls[0] || '';
 
-  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!shell.current || window.matchMedia('(pointer: coarse)').matches) return;
-    const rect = shell.current.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width - 0.5;
-    const py = (event.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: py * -5, y: px * 5 });
+  const conditionColor = () => {
+    switch (product.condition?.toLowerCase()) {
+      case 'new':
+      case 'brand new':
+        return 'bg-gradient-to-r from-emerald-500 to-green-500 text-white';
+      case 'like new':
+        return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white';
+      case 'good':
+        return 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white';
+      case 'fair':
+        return 'bg-gradient-to-r from-orange-500 to-red-500 text-white';
+      default:
+        return 'bg-gradient-to-r from-gray-500 to-gray-600 text-white';
+    }
   };
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 35 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-50px' }}
-      transition={{ duration: 0.55, delay: Math.min(index * 0.06, 0.3) }}
-      className="product-perspective"
+    <div
+      className="product-card card-3d bg-white rounded-3xl overflow-hidden shadow-lg shadow-brand-900/5 border border-brand-100 cursor-pointer group animate-fade-in-up"
+      style={{ animationDelay: `${index * 0.08}s` }}
+      onClick={() => onSelect(product)}
     >
-      <div
-        ref={shell}
-        onPointerMove={onPointerMove}
-        onPointerLeave={() => setTilt({ x: 0, y: 0 })}
-        className="product-shell"
-        style={{ transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`, transition: 'transform 160ms ease-out', transformStyle: 'preserve-3d' }}
-      >
-        <div className="group relative aspect-[4/5] cursor-pointer overflow-hidden bg-[#ded8cb]" onClick={() => onOpen(item)}>
-          <img src={cover} alt={item.name} loading="lazy" className="product-image h-full w-full object-cover" />
-          {secondary && <img src={secondary} alt="" loading="lazy" className="product-image product-secondary absolute inset-0 h-full w-full object-cover opacity-0" />}
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-
-          <div className="absolute left-3 top-3 flex gap-2">
-            {isSold && <span className="bg-[#171713] px-3 py-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-white">Sold</span>}
-            {item.videos.length > 0 && <span className="grid h-8 w-8 place-items-center bg-white text-[#171713]"><Play className="h-3.5 w-3.5 fill-current" /></span>}
+      {/* Image */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-brand-50 to-brand-100">
+        {firstImage ? (
+          <img
+            src={firstImage}
+            alt={product.item_name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-brand-300">
+            <svg className="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </div>
+        )}
 
-          <button
-            onClick={(event) => { event.stopPropagation(); onFavorite(item.id); }}
-            aria-label={favorite ? 'Remove from saved items' : 'Save item'}
-            className="focus-ring absolute right-3 top-3 grid h-10 w-10 place-items-center bg-[#f3f0e8] text-[#171713] transition-transform hover:scale-105"
-          >
-            <Heart className={`h-4.5 w-4.5 ${favorite ? 'fill-[#171713]' : ''}`} strokeWidth={1.7} />
-          </button>
-
-          <button onClick={() => onOpen(item)} className="absolute bottom-4 right-4 grid h-12 w-12 translate-y-4 place-items-center bg-[#d8ff45] text-[#171713] opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100" aria-label={`View ${item.name}`}>
-            <Plus className="h-5 w-5" />
-          </button>
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
+          <span className="px-6 py-2.5 bg-white text-brand-900 rounded-full text-sm font-bold shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+            View Details
+          </span>
         </div>
 
-        <button onClick={() => onOpen(item)} className="focus-ring block w-full pt-4 text-left">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="display text-xl font-semibold leading-tight tracking-[-0.025em]">{item.name}</h3>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-black/45">
-                {item.category} / {item.size || 'One size'} / {conditionLabel(item.condition)}
-              </p>
-            </div>
-            <p className="shrink-0 text-sm font-extrabold">{item.price ? `GBP ${item.price.toLocaleString()}` : 'Ask'}</p>
+        {/* Badges */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          {product.condition && (
+            <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg ${conditionColor()}`}>
+              {product.condition}
+            </span>
+          )}
+        </div>
+
+        {product.pieces !== undefined && product.pieces <= 1 && (
+          <div className="absolute top-4 right-4">
+            <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg animate-pulse">
+              Last Piece!
+            </span>
           </div>
-        </button>
+        )}
       </div>
-    </motion.article>
+
+      {/* Info */}
+      <div className="p-5 card-3d-content">
+        <p className="text-xs text-brand-500 font-semibold uppercase tracking-wider mb-2">
+          {product.category}
+        </p>
+        <h3 className="font-bold text-brand-950 text-lg leading-tight mb-3 line-clamp-2 group-hover:text-brand-700 transition-colors">
+          {product.item_name}
+        </h3>
+        <div className="flex items-center justify-between">
+          <p className="text-2xl font-black bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent">
+            Rs. {Number(product.selling_price).toLocaleString()}
+          </p>
+          {product.size && (
+            <span className="text-xs text-brand-600 bg-brand-100 px-3 py-1.5 rounded-full font-semibold">
+              {product.size}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
