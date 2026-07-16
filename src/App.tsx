@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import ProductModal from './components/ProductModal';
 import WhatsAppFloat from './components/WhatsAppFloat';
 import AdminDashboard from './components/AdminDashboard';
+import SplashScreen from './components/SplashScreen';
 
 export default function App() {
   const [products, setProducts] = useState<InventoryItem[]>([]);
@@ -17,6 +18,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<InventoryItem | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     async function loadData() {
@@ -55,6 +57,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-brand-50">
+      {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       <Navbar onNavigate={handleNavigate} onAdminClick={() => setShowAdmin(true)} />
       <Hero onShopNow={() => handleNavigate('shop')} />
       
