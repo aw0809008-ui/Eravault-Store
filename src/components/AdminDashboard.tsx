@@ -287,6 +287,33 @@ function ProductForm({ product, categories, onSave, onCancel }: {
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); onSave(formData); };
   const set = (key: string, val: string | number | boolean) => setFormData(p => ({ ...p, [key]: val }));
 
+  const updateImageOrder = (nextImages: string[]) => {
+    setFormData(prev => {
+      const nextImagesText = nextImages.join(', ');
+      const nextThumbnail = prev.thumbnail && nextImages.includes(prev.thumbnail)
+        ? prev.thumbnail
+        : nextImages[0] || '';
+      return { ...prev, images: nextImagesText, thumbnail: nextThumbnail };
+    });
+  };
+
+  const moveImage = (from: number, to: number) => {
+    if (to < 0 || to >= imageList.length) return;
+    const next = [...imageList];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    updateImageOrder(next);
+  };
+
+  const makeFirstImage = (url: string) => {
+    const next = [url, ...imageList.filter((img) => img !== url)];
+    setFormData(prev => ({
+      ...prev,
+      images: next.join(', '),
+      thumbnail: url,
+    }));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 animate-fade-in max-w-3xl">
       <div className="admin-card rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -332,32 +359,75 @@ function ProductForm({ product, categories, onSave, onCancel }: {
           <textarea value={formData.images} onChange={(e) => set('images', e.target.value)}
             className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white h-20 text-sm" placeholder="https://..." />
         </div>
-        {/* Thumbnail Selector */}
+        {/* Thumbnail + Image Order Manager */}
         {imageList.length > 0 && (
           <div>
-            <label className="block text-white/70 text-xs sm:text-sm mb-2">Select Thumbnail (shown on website)</label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <label className="block text-white/70 text-xs sm:text-sm">Thumbnail & Image Order</label>
+              <span className="text-[11px] text-white/40">Move images left/right or set any image as 1st</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {imageList.map((url, i) => {
                 const isSelected = formData.thumbnail === url;
+                const isFirst = i === 0;
                 return (
-                  <button key={i} type="button" onClick={() => set('thumbnail', isSelected ? '' : url)}
-                    className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden transition-all duration-200 ${isSelected ? 'ring-3 ring-brand-400 ring-offset-2 ring-offset-[#1a1a2e] scale-105' : 'opacity-50 hover:opacity-80 hover:scale-105'}`}>
-                    <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
-                    {isSelected && (
-                      <div className="absolute inset-0 bg-brand-500/30 flex items-center justify-center">
-                        <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center shadow-lg">
-                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                        </div>
+                  <div key={i} className={`relative rounded-2xl overflow-hidden border transition-all ${isSelected ? 'border-brand-400 ring-2 ring-brand-400/40' : 'border-white/10'} bg-white/5`}>
+                    <div className="relative aspect-square overflow-hidden">
+                      <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute top-1.5 left-1.5 flex gap-1">
+                        <span className="px-1.5 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-bold">#{i + 1}</span>
+                        {isFirst && <span className="px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">1st</span>}
                       </div>
-                    )}
-                    {!isSelected && (
-                      <div className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[8px] text-white font-bold">{i + 1}</div>
-                    )}
-                  </button>
+                      {isSelected && (
+                        <div className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-brand-500 flex items-center justify-center shadow-lg">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-2 space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => set('thumbnail', isSelected ? '' : url)}
+                        className={`w-full py-1.5 rounded-lg text-[11px] font-bold transition-all ${isSelected ? 'bg-brand-500 text-white' : 'bg-brand-100 text-brand-800 hover:bg-brand-200'}`}
+                      >
+                        {isSelected ? 'Thumbnail ✓' : 'Set Thumbnail'}
+                      </button>
+
+                      <div className="grid grid-cols-3 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => moveImage(i, i - 1)}
+                          disabled={i === 0}
+                          className="py-1.5 rounded-lg bg-white/10 text-white disabled:opacity-30 hover:bg-white/20 transition-all"
+                          title="Move left"
+                        >
+                          ←
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => makeFirstImage(url)}
+                          className="py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 transition-all text-[11px] font-bold"
+                          title="Make first image"
+                        >
+                          1st
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImage(i, i + 1)}
+                          disabled={i === imageList.length - 1}
+                          className="py-1.5 rounded-lg bg-white/10 text-white disabled:opacity-30 hover:bg-white/20 transition-all"
+                          title="Move right"
+                        >
+                          →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
             </div>
-            <p className="text-white/40 text-[11px] mt-1.5">{formData.thumbnail ? '✅ Thumbnail selected' : 'Click an image to set as thumbnail. If none selected, first image will be used.'}</p>
+            <p className="text-white/40 text-[11px] mt-2">Website pe thumbnail ke liye selected image dikhegi. Agar thumbnail select nahi karoge to first image automatically show hogi.</p>
           </div>
         )}
 
