@@ -10,7 +10,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, index, onSelect }: ProductCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const imageUrls = product.images ? product.images.split(',').map((url: string) => url.trim()).filter(Boolean) : [];
-  const thumbImage = product.thumbnail?.trim() || imageUrls[0] || '';
+  const thumbImage = imageUrls[0] || '';
   const pieces = Number(product.pieces) || 1;
   const unitPrice = Number(product.selling_price) || 0;
   const totalPrice = unitPrice * pieces;

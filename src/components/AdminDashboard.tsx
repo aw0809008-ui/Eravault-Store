@@ -278,40 +278,24 @@ function ProductForm({ product, categories, onSave, onCancel }: {
     condition: product?.condition || 'Good', selling_price: product?.selling_price || 0,
     images: product?.images || '', videos: product?.videos || '', pieces: product?.pieces || 1,
     show_on_website: product?.show_on_website ?? true,
-    thumbnail: product?.thumbnail || '',
   });
 
-  // Parse images for thumbnail picker
   const imageList = formData.images ? formData.images.split(',').map(u => u.trim()).filter(Boolean) : [];
 
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); onSave(formData); };
   const set = (key: string, val: string | number | boolean) => setFormData(p => ({ ...p, [key]: val }));
-
-  const updateImageOrder = (nextImages: string[]) => {
-    setFormData(prev => {
-      const nextImagesText = nextImages.join(', ');
-      const nextThumbnail = prev.thumbnail && nextImages.includes(prev.thumbnail)
-        ? prev.thumbnail
-        : nextImages[0] || '';
-      return { ...prev, images: nextImagesText, thumbnail: nextThumbnail };
-    });
-  };
 
   const moveImage = (from: number, to: number) => {
     if (to < 0 || to >= imageList.length) return;
     const next = [...imageList];
     const [item] = next.splice(from, 1);
     next.splice(to, 0, item);
-    updateImageOrder(next);
+    setFormData(prev => ({ ...prev, images: next.join(', ') }));
   };
 
   const makeFirstImage = (url: string) => {
-    const next = [url, ...imageList.filter((img) => img !== url)];
-    setFormData(prev => ({
-      ...prev,
-      images: next.join(', '),
-      thumbnail: url,
-    }));
+    const next = [url, ...imageList.filter(img => img !== url)];
+    setFormData(prev => ({ ...prev, images: next.join(', ') }));
   };
 
   return (
@@ -368,17 +352,16 @@ function ProductForm({ product, categories, onSave, onCancel }: {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {imageList.map((url, i) => {
-                const isSelected = formData.thumbnail === url;
                 const isFirst = i === 0;
                 return (
-                  <div key={i} className={`relative rounded-2xl overflow-hidden border transition-all ${isSelected ? 'border-brand-400 ring-2 ring-brand-400/40' : 'border-white/10'} bg-white/5`}>
-                    <div className="relative aspect-square overflow-hidden cursor-pointer" onDoubleClick={() => { set('thumbnail', url); makeFirstImage(url); }}>
+                  <div key={i} className={`relative rounded-2xl overflow-hidden border transition-all ${isFirst ? 'border-brand-400 ring-2 ring-brand-400/40' : 'border-white/10'} bg-white/5`}>
+                    <div className="relative aspect-square overflow-hidden cursor-pointer" onDoubleClick={() => makeFirstImage(url)}>
                       <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" draggable={false} />
                       <div className="absolute top-1.5 left-1.5 flex gap-1">
                         <span className="px-1.5 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-bold">#{i + 1}</span>
-                        {isFirst && <span className="px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">1st</span>}
+                        {isFirst && <span className="px-1.5 py-0.5 rounded-full bg-brand-500 text-white text-[10px] font-bold">⭐ Thumbnail</span>}
                       </div>
-                      {isSelected && (
+                      {isFirst && (
                         <div className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-brand-500 flex items-center justify-center shadow-lg">
                           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                         </div>
@@ -386,48 +369,23 @@ function ProductForm({ product, categories, onSave, onCancel }: {
                     </div>
 
                     <div className="p-2 space-y-2">
-                      <button
-                        type="button"
-                        onClick={() => set('thumbnail', isSelected ? '' : url)}
-                        className={`w-full py-1.5 rounded-lg text-[11px] font-bold transition-all ${isSelected ? 'bg-brand-500 text-white' : 'bg-brand-100 text-brand-800 hover:bg-brand-200'}`}
-                      >
-                        {isSelected ? 'Thumbnail ✓' : 'Set Thumbnail'}
+                      <button type="button" onClick={() => makeFirstImage(url)}
+                        className={`w-full py-1.5 rounded-lg text-[11px] font-bold transition-all ${isFirst ? 'bg-brand-500 text-white' : 'bg-white/10 text-white hover:bg-brand-500/30'}`}>
+                        {isFirst ? '⭐ Current Thumbnail' : 'Set as Thumbnail'}
                       </button>
 
-                      <div className="grid grid-cols-3 gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => moveImage(i, i - 1)}
-                          disabled={i === 0}
-                          className="py-1.5 rounded-lg bg-white/10 text-white disabled:opacity-30 hover:bg-white/20 transition-all"
-                          title="Move left"
-                        >
-                          ←
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => makeFirstImage(url)}
-                          className="py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 transition-all text-[11px] font-bold"
-                          title="Make first image"
-                        >
-                          1st
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveImage(i, i + 1)}
-                          disabled={i === imageList.length - 1}
-                          className="py-1.5 rounded-lg bg-white/10 text-white disabled:opacity-30 hover:bg-white/20 transition-all"
-                          title="Move right"
-                        >
-                          →
-                        </button>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <button type="button" onClick={() => moveImage(i, i - 1)} disabled={i === 0}
+                          className="py-1.5 rounded-lg bg-white/10 text-white disabled:opacity-30 hover:bg-white/20 transition-all text-sm">←</button>
+                        <button type="button" onClick={() => moveImage(i, i + 1)} disabled={i === imageList.length - 1}
+                          className="py-1.5 rounded-lg bg-white/10 text-white disabled:opacity-30 hover:bg-white/20 transition-all text-sm">→</button>
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
-            <p className="text-white/40 text-[11px] mt-2">💡 Image pe <span className="text-brand-400 font-bold">double-click</span> karo = instant thumbnail + first image ban jayegi. Ya buttons use karo.</p>
+            <p className="text-white/40 text-[11px] mt-2">💡 Image pe <span className="text-brand-400 font-bold">double-click</span> = instant thumbnail. First image (#1) website pe dikhegi. ← → se order change karo.</p>
           </div>
         )}
 
