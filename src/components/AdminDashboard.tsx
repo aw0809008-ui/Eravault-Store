@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   fetchAllInventory, fetchAllCategories, addProduct, updateProduct, 
-  deleteProduct, toggleShowOnWebsite, getStats, type InventoryItem 
+  deleteProduct, toggleShowOnWebsite, getStats, type InventoryItem,
+  getAllChats, getMessages, sendMessage, markRead, subscribeToMessages,
+  type ChatSession, type ChatMessage
 } from '../lib/supabase';
 
 interface AdminProps { onClose: () => void; }
@@ -10,7 +12,7 @@ export default function AdminDashboard({ onClose }: AdminProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'add'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'add' | 'chat'>('dashboard');
   const [products, setProducts] = useState<InventoryItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,7 +110,7 @@ export default function AdminDashboard({ onClose }: AdminProps) {
           <button onClick={() => setSidebarOpen(false)} className="md:hidden text-white/60"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
         </div>
         <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-          {([['dashboard','Dashboard','📊'],['products','Products','📦'],['add','Add Product','➕']] as const).map(([id,label,icon]) => (
+          {([['dashboard','Dashboard','📊'],['products','Products','📦'],['add','Add Product','➕'],['chat','Chat Inbox','💬']] as const).map(([id,label,icon]) => (
             <button key={id} onClick={() => switchTab(id as typeof activeTab)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all ${activeTab === id ? 'bg-gradient-to-r from-brand-500/20 to-brand-600/20 text-brand-400 border border-brand-500/30' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
               <span className="text-lg">{icon}</span><span className="font-medium">{label}</span>
@@ -135,6 +137,7 @@ export default function AdminDashboard({ onClose }: AdminProps) {
                 {activeTab === 'dashboard' && '📊 Dashboard'}
                 {activeTab === 'products' && '📦 Products'}
                 {activeTab === 'add' && (editingProduct ? '✏️ Edit' : '➕ Add')}
+                {activeTab === 'chat' && '💬 Chat Inbox'}
               </h1>
             </div>
             <button onClick={loadData} className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all flex items-center gap-1.5 text-sm flex-shrink-0">
@@ -259,6 +262,8 @@ export default function AdminDashboard({ onClose }: AdminProps) {
                     onCancel={() => { setEditingProduct(null); setActiveTab('products'); }}
                   />
                 )}
+
+                {activeTab === 'chat' && <AdminChatInbox />}
               </>
             )}
           </div>
@@ -405,5 +410,111 @@ function ProductForm({ product, categories, onSave, onCancel }: {
         <button type="button" onClick={onCancel} className="px-6 py-3.5 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all text-sm">Cancel</button>
       </div>
     </form>
+  );
+}
+
+// ── ADMIN CHAT INBOX ──
+function AdminChatInbox() {
+  const [chats, setChats] = useState<ChatSession[]>([]);
+  const [activeChat, setActiveChat] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [reply, setReply] = useState('');
+  const [sending, setSending] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { getAllChats().then(setChats); }, []);
+
+  useEffect(() => {
+    if (!activeChat) return;
+    getMessages(activeChat).then(setMessages);
+    markRead(activeChat, 'admin');
+    const ch = subscribeToMessages(activeChat, (msg) => setMessages(prev => [...prev, msg]));
+    return () => { ch.unsubscribe(); };
+  }, [activeChat]);
+
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  const sendReply = async () => {
+    if (!reply.trim() || !activeChat || sending) return;
+    setSending(true);
+    await sendMessage(activeChat, 'admin', reply.trim());
+    setReply('');
+    setSending(false);
+    getMessages(activeChat).then(setMessages);
+    getAllChats().then(setChats);
+  };
+
+  if (activeChat) {
+    const chat = chats.find(c => c.chat_id === activeChat);
+    return (
+      <div className="flex flex-col h-[calc(100vh-200px)] animate-fade-in">
+        {/* Chat header */}
+        <div className="flex items-center gap-3 pb-4 border-b border-white/10 mb-4">
+          <button onClick={() => setActiveChat(null)} className="p-2 bg-white/10 rounded-lg text-white hover:bg-white/20">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <div>
+            <p className="text-white font-bold text-sm">{chat?.buyer_name || 'Buyer'}</p>
+            <p className="text-white/50 text-xs">{chat?.buyer_email} • 🔒 Encrypted</p>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[75%] px-3.5 py-2.5 rounded-2xl text-sm ${m.sender === 'admin' ? 'bg-brand-600 text-white rounded-br-md' : 'bg-white/10 text-white border border-white/10 rounded-bl-md'}`}>
+                <p className="break-words">{m.message}</p>
+                <p className={`text-[9px] mt-1 ${m.sender === 'admin' ? 'text-white/50' : 'text-white/30'}`}>
+                  {m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                </p>
+              </div>
+            </div>
+          ))}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Reply */}
+        <div className="flex gap-2 mt-4 pt-4 border-t border-white/10">
+          <input value={reply} onChange={e => setReply(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') sendReply(); }}
+            placeholder="Type reply..." className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white text-sm placeholder-white/40" />
+          <button onClick={sendReply} disabled={!reply.trim() || sending}
+            className="px-5 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl disabled:opacity-50 transition-all text-sm">Send</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 animate-fade-in">
+      <p className="text-white/50 text-sm">{chats.length} conversation{chats.length !== 1 ? 's' : ''}</p>
+      {chats.length === 0 ? (
+        <div className="text-center py-16 text-white/30">
+          <div className="text-5xl mb-3">💬</div>
+          <p className="font-bold">No chats yet</p>
+          <p className="text-sm mt-1">When buyers message you, they'll appear here.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {chats.map(chat => (
+            <button key={chat.chat_id} onClick={() => setActiveChat(chat.chat_id)}
+              className="w-full admin-card rounded-xl p-4 text-left flex items-center gap-3 hover:border-brand-500/30">
+              <div className="w-10 h-10 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold flex-shrink-0">
+                {chat.buyer_name?.charAt(0).toUpperCase() || '?'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="text-white font-semibold text-sm truncate">{chat.buyer_name}</p>
+                  {chat.unread_admin > 0 && <span className="w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">{chat.unread_admin}</span>}
+                </div>
+                <p className="text-white/40 text-xs truncate">{chat.last_message || 'No messages'}</p>
+                <p className="text-white/30 text-[10px] mt-0.5">{chat.buyer_email}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

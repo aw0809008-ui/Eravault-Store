@@ -12,6 +12,7 @@ import ProductModal from './components/ProductModal';
 import AdminDashboard from './components/AdminDashboard';
 import SplashScreen from './components/SplashScreen';
 import BackToTop from './components/BackToTop';
+import ChatWidget from './components/ChatWidget';
 
 
 export default function App() {
@@ -102,6 +103,7 @@ export default function App() {
       <Footer />
 
       <BackToTop />
+      <ChatWidget />
 
       {selectedProduct && (
         <ProductModal product={selectedProduct} onClose={handleCloseModal} />
