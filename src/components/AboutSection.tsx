@@ -34,10 +34,11 @@ export default function AboutSection() {
   ];
 
   return (
-    <section id="about" className="py-12 sm:py-20 md:py-32 bg-white relative overflow-hidden">
+    <section id="about" className="py-12 sm:py-20 md:py-32 bg-white relative overflow-hidden section-3d-divider">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-50/50 to-transparent" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-100/30 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-100/30 rounded-full blur-3xl animate-morph-blob" />
+      <div className="absolute top-20 right-10 w-64 h-64 bg-brand-200/20 rounded-full blur-3xl animate-float-slow" style={{ animationDelay: '1s' }} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -72,7 +73,7 @@ export default function AboutSection() {
             {features.map((feature, i) => (
               <div
                 key={i}
-                className="card-3d bg-gradient-to-br from-white to-brand-50 rounded-3xl p-6 border border-brand-100 animate-fade-in-up"
+                className="hover-3d-lift bg-gradient-to-br from-white to-brand-50 rounded-3xl p-6 border border-brand-100 animate-fade-in-up"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-2xl mb-4 shadow-lg`}>

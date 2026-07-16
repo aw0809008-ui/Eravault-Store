@@ -42,8 +42,9 @@ export default function ContactSection() {
     <section id="contact" className="py-12 sm:py-20 md:py-32 bg-gradient-to-br from-brand-950 via-[#1a1a2e] to-brand-950 text-white relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-brand-400/10 rounded-full blur-3xl animate-float-slow" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-brand-500/10 blur-3xl animate-morph-blob" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-brand-400/10 blur-3xl animate-morph-blob" style={{ animationDelay: '4s' }} />
+        <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-500/5 blur-3xl animate-morph-blob" style={{ animationDelay: '2s' }} />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

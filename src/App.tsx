@@ -71,7 +71,7 @@ export default function App() {
             ].map((item, i) => (
               <div 
                 key={i} 
-                className="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-white to-brand-50 border border-brand-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 animate-fade-in-up"
+                className="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-white to-brand-50 border border-brand-100 shadow-sm hover-3d-lift animate-fade-in-up"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <span className={`text-2xl ${item.color}`}>{item.icon}</span>
