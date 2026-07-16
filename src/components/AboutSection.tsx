@@ -34,18 +34,26 @@ export default function AboutSection() {
   ];
 
   return (
-    <section id="about" className="py-12 sm:py-20 md:py-32 relative overflow-hidden section-3d-divider" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #faf7f2 50%, #ffffff 100%)' }}>
-      {/* Background decoration */}
+    <section id="about" className="py-12 sm:py-20 md:py-32 relative overflow-hidden section-3d-divider" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5efe4 40%, #faf7f2 70%, #ffffff 100%)' }}>
+      {/* Background decoration — VISIBLE */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-50/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-100/20 rounded-full blur-3xl hidden md:block" />
-        <div className="absolute top-20 right-10 w-64 h-64 bg-brand-200/15 rounded-full blur-3xl hidden md:block" />
-        {/* Diamond pattern */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.02]" xmlns="http://www.w3.org/2000/svg">
-          <defs><pattern id="diamonds" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><rect x="14" y="0" width="12" height="12" transform="rotate(45 20 6)" fill="none" stroke="#885935" strokeWidth="0.5" /></pattern></defs>
-          <rect width="100%" height="100%" fill="url(#diamonds)" />
+        {/* Warm gradient wash on right side */}
+        <div className="absolute top-0 right-0 w-2/3 h-full" style={{ background: 'linear-gradient(to left, rgba(240,232,216,0.6), transparent)' }} />
+        
+        {/* Visible blobs */}
+        <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(196,154,98,0.1) 0%, transparent 65%)' }} />
+        <div className="absolute -top-20 right-0 w-[400px] h-[400px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(196,154,98,0.08) 0%, transparent 60%)' }} />
+        
+        {/* Cross-hatch pattern */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
+          <defs><pattern id="aboutpat" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+            <path d="M0 25h50M25 0v50" stroke="#885935" strokeWidth="0.4" />
+          </pattern></defs>
+          <rect width="100%" height="100%" fill="url(#aboutpat)" />
         </svg>
-        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-brand-300/15 to-transparent" />
+        
+        {/* Top golden divider */}
+        <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(196,154,98,0.3), transparent)' }} />
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

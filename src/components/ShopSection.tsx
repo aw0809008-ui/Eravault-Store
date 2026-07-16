@@ -43,27 +43,30 @@ export default function ShopSection({ products, categories, loading, onSelectPro
   const clearAll = () => { setActiveCategory('All'); setFilterSize('All'); setFilterCondition('All'); setSearchQuery(''); };
 
   return (
-    <section id="shop" className="py-12 sm:py-20 md:py-28 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #faf7f2 0%, #f5efe4 30%, #faf7f2 60%, #f5efe4 100%)' }}>
-      {/* Background decorations */}
+    <section id="shop" className="py-12 sm:py-20 md:py-28 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #faf7f2 0%, #f0e8d8 40%, #faf7f2 70%, #f0e8d8 100%)' }}>
+      {/* Background decorations — VISIBLE */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Soft gradient blobs */}
-        <div className="absolute top-20 -left-20 w-72 h-72 bg-brand-200/15 rounded-full blur-3xl hidden md:block" />
-        <div className="absolute bottom-40 -right-20 w-80 h-80 bg-brand-100/20 rounded-full blur-3xl hidden md:block" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-100/10 rounded-full blur-3xl hidden md:block" />
-        
-        {/* Subtle geometric pattern — SVG dots grid */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
-          <defs><pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#885935" /></pattern></defs>
-          <rect width="100%" height="100%" fill="url(#dots)" />
+        {/* Large visible gradient blobs */}
+        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(196,154,98,0.12) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(196,154,98,0.10) 0%, transparent 70%)' }} />
+        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(136,89,53,0.06) 0%, transparent 60%)' }} />
+
+        {/* Diamond pattern — MORE visible */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+          <defs><pattern id="shopdots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <circle cx="20" cy="20" r="1" fill="#885935" />
+            <path d="M0 0L40 0L40 40L0 40Z" fill="none" stroke="#885935" strokeWidth="0.3" />
+          </pattern></defs>
+          <rect width="100%" height="100%" fill="url(#shopdots)" />
         </svg>
         
-        {/* Corner decorative shapes */}
-        <div className="absolute top-0 right-0 w-64 h-64 hidden md:block" style={{ background: 'radial-gradient(circle at 100% 0%, rgba(196,154,98,0.06) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-0 left-0 w-64 h-64 hidden md:block" style={{ background: 'radial-gradient(circle at 0% 100%, rgba(196,154,98,0.06) 0%, transparent 70%)' }} />
+        {/* Decorative lines */}
+        <div className="absolute top-24 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(196,154,98,0.15) 30%, rgba(196,154,98,0.15) 70%, transparent 100%)' }} />
+        <div className="absolute bottom-32 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(196,154,98,0.12) 30%, rgba(196,154,98,0.12) 70%, transparent 100%)' }} />
         
-        {/* Thin decorative lines */}
-        <div className="absolute top-32 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-300/10 to-transparent hidden md:block" />
-        <div className="absolute bottom-48 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-300/10 to-transparent hidden md:block" />
+        {/* Corner accents */}
+        <div className="absolute top-0 right-0 w-80 h-80" style={{ background: 'radial-gradient(circle at 100% 0%, rgba(196,154,98,0.1) 0%, transparent 60%)' }} />
+        <div className="absolute bottom-0 left-0 w-80 h-80" style={{ background: 'radial-gradient(circle at 0% 100%, rgba(196,154,98,0.08) 0%, transparent 60%)' }} />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

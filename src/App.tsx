@@ -65,11 +65,11 @@ export default function App() {
       <Hero onShopNow={() => handleNavigate('shop')} />
       
       {/* Features Strip */}
-      <div className="bg-white border-b border-brand-100 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-50/50 via-white to-brand-50/50" />
-        {/* Subtle decorative circles */}
-        <div className="absolute -top-10 -left-10 w-40 h-40 rounded-full bg-brand-200/20 hidden md:block" />
-        <div className="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-brand-100/30 hidden md:block" />
+      <div className="relative overflow-hidden border-b border-brand-200/50" style={{ background: 'linear-gradient(90deg, #faf7f2, #ffffff 30%, #ffffff 70%, #faf7f2)' }}>
+        {/* Visible decorative elements */}
+        <div className="absolute -top-16 -left-16 w-48 h-48 rounded-full" style={{ background: 'radial-gradient(circle, rgba(196,154,98,0.1) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-16 -right-16 w-56 h-56 rounded-full" style={{ background: 'radial-gradient(circle, rgba(196,154,98,0.08) 0%, transparent 70%)' }} />
+        <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(196,154,98,0.2), transparent)' }} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 relative">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
             {[

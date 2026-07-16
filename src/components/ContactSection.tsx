@@ -39,18 +39,25 @@ export default function ContactSection() {
   ];
 
   return (
-    <section id="contact" className="py-12 sm:py-20 md:py-32 bg-gradient-to-br from-brand-950 via-[#1a1a2e] to-brand-950 text-white relative overflow-hidden">
-      {/* Background decoration */}
+    <section id="contact" className="py-12 sm:py-20 md:py-32 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 40%, #1a1a2e 70%, #16213e 100%)' }}>
+      {/* Background decoration — VISIBLE */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-brand-500/8 rounded-full blur-3xl hidden md:block" />
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-brand-400/8 rounded-full blur-3xl hidden md:block" />
-        {/* Subtle grid pattern */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
-          <defs><pattern id="cgrid" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" fill="none" stroke="white" strokeWidth="0.3" /></pattern></defs>
-          <rect width="100%" height="100%" fill="url(#cgrid)" />
+        {/* Golden glow blobs */}
+        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(196,154,98,0.12) 0%, transparent 60%)' }} />
+        <div className="absolute -bottom-40 -right-32 w-[600px] h-[600px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(196,154,98,0.08) 0%, transparent 55%)' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(100,70,200,0.06) 0%, transparent 60%)' }} />
+        
+        {/* Grid pattern — more visible */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+          <defs><pattern id="cgrid2" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+            <circle cx="30" cy="30" r="1" fill="rgba(196,154,98,0.5)" />
+            <path d="M0 0L60 60M60 0L0 60" stroke="white" strokeWidth="0.15" />
+          </pattern></defs>
+          <rect width="100%" height="100%" fill="url(#cgrid2)" />
         </svg>
-        {/* Top glow line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/30 to-transparent" />
+        
+        {/* Top golden glow line */}
+        <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 10%, rgba(196,154,98,0.4) 50%, transparent 90%)' }} />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
