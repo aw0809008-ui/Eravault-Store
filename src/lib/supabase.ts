@@ -1,31 +1,160 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://zbfyssmoksvmvqyomqjy.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiZnlzc21va3N2bXZxeW9tcWp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzIxNjksImV4cCI6MjA5OTc0ODE2OX0._1TV-Ova2MJp5N5N-v6MiULYdd1gDpweQNtXFOfwzOE';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiZnlzc21va3N2bXZxeW9tcWp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzIxNjksImV4cCI6MjA5OTc0ODE2OX0._1TV-Ova2MJp5N5N-v6MiULYdd1gDpweQNtXFOfwzOE';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
-export interface DbRow {
-  id: string; item_name: string; category: string; size: string; condition: string;
-  sourcing_cost: number; selling_price: number | null; status: string; sourcing_date: string;
-  sold_date: string | null; notes: string | null; listing_link: string | null;
-  images: string | null; videos: string | null; pieces: number | null; sale_channel: string | null;
-  show_on_website: boolean; created_at: string; updated_at: string;
+export interface InventoryItem {
+  id?: number;
+  item_name: string;
+  category: string;
+  size: string;
+  condition: string;
+  selling_price: number;
+  cost_price?: number;
+  images: string;
+  videos: string;
+  pieces: number;
+  show_on_website: boolean;
+  created_at?: string;
+  description?: string;
 }
 
-export interface StoreItem {
-  id: string; name: string; category: string; size: string; condition: string;
-  price: number | null; status: string; notes: string | null;
-  images: string[]; videos: string[]; pieces: number; created_at: string;
-  listingLink: string | null;
+// Fetch products for website (only show_on_website = true)
+export async function fetchInventory(): Promise<InventoryItem[]> {
+  const { data, error } = await supabase
+    .from('inventory')
+    .select('*')
+    .eq('show_on_website', true)
+    .order('id', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching inventory:', error);
+    return [];
+  }
+  return data || [];
 }
 
-export function toStoreItem(row: DbRow): StoreItem {
+// Fetch ALL products for admin
+export async function fetchAllInventory(): Promise<InventoryItem[]> {
+  const { data, error } = await supabase
+    .from('inventory')
+    .select('*')
+    .order('id', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching all inventory:', error);
+    return [];
+  }
+  return data || [];
+}
+
+// Fetch categories
+export async function fetchCategories(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('inventory')
+    .select('category')
+    .eq('show_on_website', true);
+
+  if (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+
+  const categories = [...new Set((data || []).map((d: { category: string }) => d.category).filter(Boolean))];
+  return categories as string[];
+}
+
+// Fetch all categories for admin
+export async function fetchAllCategories(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('inventory')
+    .select('category');
+
+  if (error) {
+    console.error('Error fetching all categories:', error);
+    return [];
+  }
+
+  const categories = [...new Set((data || []).map((d: { category: string }) => d.category).filter(Boolean))];
+  return categories as string[];
+}
+
+// Add new product
+export async function addProduct(product: Omit<InventoryItem, 'id' | 'created_at'>): Promise<InventoryItem | null> {
+  const { data, error } = await supabase
+    .from('inventory')
+    .insert([product])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error adding product:', error);
+    return null;
+  }
+  return data;
+}
+
+// Update product
+export async function updateProduct(id: number, updates: Partial<InventoryItem>): Promise<boolean> {
+  const { error } = await supabase
+    .from('inventory')
+    .update(updates)
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating product:', error);
+    return false;
+  }
+  return true;
+}
+
+// Delete product
+export async function deleteProduct(id: number): Promise<boolean> {
+  const { error } = await supabase
+    .from('inventory')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting product:', error);
+    return false;
+  }
+  return true;
+}
+
+// Toggle show_on_website
+export async function toggleShowOnWebsite(id: number, show: boolean): Promise<boolean> {
+  const { error } = await supabase
+    .from('inventory')
+    .update({ show_on_website: show })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error toggling show_on_website:', error);
+    return false;
+  }
+  return true;
+}
+
+// Get stats
+export async function getStats() {
+  const { data: allProducts } = await supabase.from('inventory').select('*');
+  const { data: listedProducts } = await supabase.from('inventory').select('*').eq('show_on_website', true);
+  
+  const products = allProducts || [];
+  const listed = listedProducts || [];
+  
+  const totalValue = products.reduce((sum, p) => sum + (Number(p.selling_price) * Number(p.pieces || 1)), 0);
+  const totalPieces = products.reduce((sum, p) => sum + Number(p.pieces || 1), 0);
+  const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+  
   return {
-    id: row.id, name: row.item_name, category: row.category, size: row.size,
-    condition: row.condition, price: row.selling_price, status: row.status, notes: row.notes,
-    images: row.images ? row.images.split(',').filter(Boolean) : [],
-    videos: row.videos ? row.videos.split(',').filter(Boolean) : [],
-    pieces: row.pieces || 1, created_at: row.created_at, listingLink: row.listing_link,
+    totalProducts: products.length,
+    listedProducts: listed.length,
+    totalValue,
+    totalPieces,
+    totalCategories: categories.length,
   };
 }
