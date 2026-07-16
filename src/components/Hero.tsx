@@ -73,7 +73,7 @@ export default function Hero({ onShopNow }: HeroProps) {
           </button>
           
           <a
-            href="https://wa.me/923000000000?text=Hi!%20I'm%20interested%20in%20EraVault%20products"
+            href="https://wa.me/923238226427?text=Hi!%20I'm%20interested%20in%20EraVault%20products"
             target="_blank"
             rel="noopener noreferrer"
             className="group px-10 py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-bold rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white/50 hover:scale-105 uppercase tracking-wider text-sm flex items-center justify-center gap-2"
