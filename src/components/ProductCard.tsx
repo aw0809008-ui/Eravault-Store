@@ -10,7 +10,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, index, onSelect }: ProductCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const imageUrls = product.images ? product.images.split(',').map((url: string) => url.trim()).filter(Boolean) : [];
-  const firstImage = imageUrls[0] || '';
+  const thumbImage = product.thumbnail?.trim() || imageUrls[0] || '';
   const pieces = Number(product.pieces) || 1;
   const unitPrice = Number(product.selling_price) || 0;
   const totalPrice = unitPrice * pieces;
@@ -50,8 +50,8 @@ export default function ProductCard({ product, index, onSelect }: ProductCardPro
     >
       {/* Image */}
       <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-brand-50 to-brand-100">
-        {firstImage ? (
-          <img src={firstImage} alt={product.item_name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+        {thumbImage ? (
+          <img src={thumbImage} alt={product.item_name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-brand-300">
             <svg className="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>

@@ -278,7 +278,11 @@ function ProductForm({ product, categories, onSave, onCancel }: {
     condition: product?.condition || 'Good', selling_price: product?.selling_price || 0,
     images: product?.images || '', videos: product?.videos || '', pieces: product?.pieces || 1,
     show_on_website: product?.show_on_website ?? true,
+    thumbnail: product?.thumbnail || '',
   });
+
+  // Parse images for thumbnail picker
+  const imageList = formData.images ? formData.images.split(',').map(u => u.trim()).filter(Boolean) : [];
 
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); onSave(formData); };
   const set = (key: string, val: string | number | boolean) => setFormData(p => ({ ...p, [key]: val }));
@@ -328,6 +332,35 @@ function ProductForm({ product, categories, onSave, onCancel }: {
           <textarea value={formData.images} onChange={(e) => set('images', e.target.value)}
             className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white h-20 text-sm" placeholder="https://..." />
         </div>
+        {/* Thumbnail Selector */}
+        {imageList.length > 0 && (
+          <div>
+            <label className="block text-white/70 text-xs sm:text-sm mb-2">Select Thumbnail (shown on website)</label>
+            <div className="flex flex-wrap gap-2">
+              {imageList.map((url, i) => {
+                const isSelected = formData.thumbnail === url;
+                return (
+                  <button key={i} type="button" onClick={() => set('thumbnail', isSelected ? '' : url)}
+                    className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden transition-all duration-200 ${isSelected ? 'ring-3 ring-brand-400 ring-offset-2 ring-offset-[#1a1a2e] scale-105' : 'opacity-50 hover:opacity-80 hover:scale-105'}`}>
+                    <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                    {isSelected && (
+                      <div className="absolute inset-0 bg-brand-500/30 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center shadow-lg">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        </div>
+                      </div>
+                    )}
+                    {!isSelected && (
+                      <div className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[8px] text-white font-bold">{i + 1}</div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-white/40 text-[11px] mt-1.5">{formData.thumbnail ? '✅ Thumbnail selected' : 'Click an image to set as thumbnail. If none selected, first image will be used.'}</p>
+          </div>
+        )}
+
         <div>
           <label className="block text-white/70 text-xs sm:text-sm mb-1.5">Videos (comma separated URLs)</label>
           <textarea value={formData.videos} onChange={(e) => set('videos', e.target.value)}

@@ -20,6 +20,7 @@ export interface InventoryItem {
   created_at?: string;
   description?: string;
   listing_link?: string;
+  thumbnail?: string;
 }
 
 // Fetch products for website (only show_on_website = true)
