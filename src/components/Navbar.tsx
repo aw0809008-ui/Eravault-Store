@@ -1,96 +1,125 @@
-import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Heart, Menu, Search, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface NavbarProps {
-  favoritesCount: number;
-  onSearch: () => void;
-  onFavorites: () => void;
+  onNavigate: (section: string) => void;
+  onAdminClick: () => void;
 }
 
-const links = [
-  ['New drop', '#collection'],
-  ['Our story', '#story'],
-  ['How it works', '#how-it-works'],
-  ['FAQ', '#faq'],
-];
-
-export default function Navbar({ favoritesCount, onSearch, onFavorites }: NavbarProps) {
-  const [open, setOpen] = useState(false);
-  const [solid, setSolid] = useState(false);
+export default function Navbar({ onNavigate, onAdminClick }: NavbarProps) {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 30);
-    onScroll();
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const links = [
+    { label: 'Home', section: 'hero' },
+    { label: 'Shop', section: 'shop' },
+    { label: 'About', section: 'about' },
+    { label: 'Contact', section: 'contact' },
+  ];
+
+  const handleClick = (section: string) => {
+    onNavigate(section);
+    setMobileOpen(false);
+  };
+
   return (
-    <>
-      <header className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${solid ? 'border-black/10 bg-[#f3f0e8]/95 text-[#171713] backdrop-blur-xl' : 'border-white/20 bg-transparent text-white'}`}>
-        <div className="mx-auto flex h-20 max-w-[1500px] items-center justify-between px-5 sm:px-8 lg:px-12">
-          <a href="#top" className="focus-ring display text-3xl font-semibold tracking-[-0.06em]">
-            EraVault
-          </a>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled
+          ? 'bg-white/90 backdrop-blur-xl shadow-lg shadow-brand-900/5'
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 md:h-20">
+          {/* Logo */}
+          <button 
+            onClick={() => handleClick('hero')} 
+            className="flex items-center gap-3 group"
+            onDoubleClick={onAdminClick}
+          >
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
+              scrolled 
+                ? 'bg-gradient-to-br from-brand-600 to-brand-800 shadow-lg shadow-brand-500/30' 
+                : 'bg-white/20 backdrop-blur-sm border border-white/30'
+            }`}>
+              <span className="text-white font-display font-bold text-xl">E</span>
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className={`font-display font-bold text-xl tracking-wide transition-all duration-300 ${
+                scrolled ? 'text-brand-950' : 'text-white'
+              }`}>
+                EraVault
+              </span>
+              <span className={`text-[10px] uppercase tracking-[0.25em] transition-all duration-300 ${
+                scrolled ? 'text-brand-500' : 'text-brand-200'
+              }`}>
+                Vintage Store
+              </span>
+            </div>
+          </button>
 
-          <nav className="hidden items-center gap-8 lg:flex">
-            {links.map(([label, href]) => (
-              <a key={label} href={href} className="underline-link focus-ring text-xs font-bold uppercase tracking-[0.17em]">
-                {label}
-              </a>
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center gap-1">
+            {links.map((link) => (
+              <button
+                key={link.section}
+                onClick={() => handleClick(link.section)}
+                className={`relative px-5 py-2 text-sm font-medium tracking-wide uppercase transition-all duration-300 rounded-full hover:scale-105 ${
+                  scrolled 
+                    ? 'text-brand-700 hover:text-brand-900 hover:bg-brand-100' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {link.label}
+              </button>
             ))}
-          </nav>
+          </div>
 
-          <div className="flex items-center gap-1">
-            <button onClick={onSearch} aria-label="Search collection" className="focus-ring grid h-11 w-11 place-items-center transition-opacity hover:opacity-60">
-              <Search className="h-5 w-5" strokeWidth={1.7} />
-            </button>
-            <button onClick={onFavorites} aria-label="View saved items" className="focus-ring relative grid h-11 w-11 place-items-center transition-opacity hover:opacity-60">
-              <Heart className="h-5 w-5" strokeWidth={1.7} />
-              {favoritesCount > 0 && (
-                <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-[#d8ff45] px-1 text-[10px] font-extrabold text-[#171713]">
-                  {favoritesCount}
-                </span>
-              )}
-            </button>
-            <button onClick={() => setOpen(true)} aria-label="Open menu" className="focus-ring grid h-11 w-11 place-items-center lg:hidden">
-              <Menu className="h-5 w-5" />
-            </button>
+          {/* Mobile Toggle */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className={`md:hidden p-2 rounded-xl transition-all ${
+              scrolled ? 'hover:bg-brand-100' : 'hover:bg-white/10'
+            }`}
+          >
+            <div className="w-6 flex flex-col gap-1.5">
+              <span className={`block h-0.5 rounded-full transition-all duration-300 ${
+                scrolled ? 'bg-brand-900' : 'bg-white'
+              } ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`block h-0.5 rounded-full transition-all duration-300 ${
+                scrolled ? 'bg-brand-900' : 'bg-white'
+              } ${mobileOpen ? 'opacity-0' : ''}`} />
+              <span className={`block h-0.5 rounded-full transition-all duration-300 ${
+                scrolled ? 'bg-brand-900' : 'bg-white'
+              } ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileOpen && (
+        <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-brand-100 animate-slide-down shadow-xl">
+          <div className="px-4 py-4 flex flex-col gap-1">
+            {links.map((link, i) => (
+              <button
+                key={link.section}
+                onClick={() => handleClick(link.section)}
+                className="text-left px-4 py-3.5 text-brand-800 font-medium rounded-xl hover:bg-brand-50 transition-all animate-fade-in-up"
+                style={{ animationDelay: `${i * 0.05}s` }}
+              >
+                {link.label}
+              </button>
+            ))}
           </div>
         </div>
-      </header>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[80] bg-[#171713] text-white lg:hidden">
-            <div className="flex h-full flex-col px-6 py-6">
-              <div className="flex items-center justify-between">
-                <span className="display text-3xl font-semibold tracking-[-0.06em]">EraVault</span>
-                <button onClick={() => setOpen(false)} aria-label="Close menu" className="focus-ring grid h-12 w-12 place-items-center border border-white/20">
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <nav className="my-auto">
-                {links.map(([label, href], index) => (
-                  <motion.a
-                    key={label}
-                    initial={{ opacity: 0, x: -24 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.07 }}
-                    href={href}
-                    onClick={() => setOpen(false)}
-                    className="display block border-b border-white/15 py-5 text-5xl"
-                  >
-                    {label}
-                  </motion.a>
-                ))}
-              </nav>
-              <p className="text-xs uppercase tracking-[0.2em] text-white/50">One-off clothing. No restocks.</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+      )}
+    </nav>
   );
 }
