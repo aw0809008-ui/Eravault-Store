@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 interface NavbarProps {
   onNavigate: (section: string) => void;
   onAdminClick: () => void;
+  productCount?: number;
 }
 
-export default function Navbar({ onNavigate, onAdminClick }: NavbarProps) {
+export default function Navbar({ onNavigate, onAdminClick, productCount = 0 }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -67,16 +68,10 @@ export default function Navbar({ onNavigate, onAdminClick }: NavbarProps) {
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-1">
             {links.map((link) => (
-              <button
-                key={link.section}
-                onClick={() => handleClick(link.section)}
-                className={`relative px-5 py-2 text-sm font-medium tracking-wide uppercase transition-all duration-300 rounded-full hover:scale-105 ${
-                  scrolled 
-                    ? 'text-brand-700 hover:text-brand-900 hover:bg-brand-100' 
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
+              <button key={link.section} onClick={() => handleClick(link.section)}
+                className={`relative px-5 py-2 text-sm font-medium tracking-wide uppercase transition-all duration-300 rounded-full hover:scale-105 ${scrolled ? 'text-brand-700 hover:text-brand-900 hover:bg-brand-100' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
                 {link.label}
+                {link.section === 'shop' && productCount > 0 && <span className={`ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full font-bold ${scrolled ? 'bg-brand-500 text-white' : 'bg-white/20 text-white'}`}>{productCount}</span>}
               </button>
             ))}
           </div>

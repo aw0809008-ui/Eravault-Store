@@ -7,6 +7,7 @@ type Media = { type: 'image' | 'video'; url: string };
 export default function ProductModal({ product, onClose }: Props) {
   const [idx, setIdx] = useState(0);
   const [dragX, setDragX] = useState(0);
+  const [zoomed, setZoomed] = useState(false);
   const dragging = useRef(false);
   const startX = useRef(0);
 
@@ -18,8 +19,8 @@ export default function ProductModal({ product, onClose }: Props) {
   const unitPrice = Number(product.selling_price) || 0;
   const totalPrice = unitPrice * pieces;
 
-  const goPrev = useCallback(() => { if (total > 1) setIdx(i => (i - 1 + total) % total); }, [total]);
-  const goNext = useCallback(() => { if (total > 1) setIdx(i => (i + 1) % total); }, [total]);
+  const goPrev = useCallback(() => { if (total > 1) { setIdx(i => (i - 1 + total) % total); setZoomed(false); } }, [total]);
+  const goNext = useCallback(() => { if (total > 1) { setIdx(i => (i + 1) % total); setZoomed(false); } }, [total]);
 
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
@@ -96,7 +97,13 @@ export default function ProductModal({ product, onClose }: Props) {
                 {total > 0 ? media.map((item, i) => (
                   <div key={i} className="flex items-center justify-center" style={slideStyle(i)}>
                     {item.type === 'image' ? (
-                      <img src={item.url} alt={product.item_name} className="w-full h-full object-contain" draggable={false} />
+                      <img
+                        src={item.url}
+                        alt={product.item_name}
+                        className={`w-full h-full transition-transform duration-300 ${zoomed && i === idx ? 'object-cover scale-150 cursor-zoom-out' : 'object-contain cursor-zoom-in'}`}
+                        draggable={false}
+                        onClick={e => { if (i === idx) { e.stopPropagation(); setZoomed(z => !z); } }}
+                      />
                     ) : (
                       <video src={item.url} controls playsInline preload="none" className="w-full h-full object-contain" draggable={false} />
                     )}

@@ -11,6 +11,8 @@ import ProductModal from './components/ProductModal';
 import WhatsAppFloat from './components/WhatsAppFloat';
 import AdminDashboard from './components/AdminDashboard';
 import SplashScreen from './components/SplashScreen';
+import BackToTop from './components/BackToTop';
+import AnnouncementBar from './components/AnnouncementBar';
 
 export default function App() {
   const [products, setProducts] = useState<InventoryItem[]>([]);
@@ -58,7 +60,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-brand-50">
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
-      <Navbar onNavigate={handleNavigate} onAdminClick={() => setShowAdmin(true)} />
+      <AnnouncementBar />
+      <Navbar onNavigate={handleNavigate} onAdminClick={() => setShowAdmin(true)} productCount={products.length} />
       <Hero onShopNow={() => handleNavigate('shop')} />
       
       {/* Features Strip */}
@@ -95,6 +98,7 @@ export default function App() {
       <ContactSection />
       <Footer />
       <WhatsAppFloat />
+      <BackToTop />
 
       {selectedProduct && (
         <ProductModal product={selectedProduct} onClose={handleCloseModal} />
