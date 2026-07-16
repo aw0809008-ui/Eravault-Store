@@ -8,7 +8,7 @@ export default function ContactSection() {
       ),
       title: 'WhatsApp',
       subtitle: 'Chat with us directly',
-      href: 'https://wa.me/923000000000?text=Hi!%20I%20have%20a%20question%20about%20EraVault%20products',
+      href: 'https://wa.me/923238226427?text=Hi!%20I%20have%20a%20question%20about%20EraVault%20products',
       gradient: 'from-[#25D366] to-[#128C7E]',
       hoverGlow: 'hover:shadow-[#25D366]/30',
     },
