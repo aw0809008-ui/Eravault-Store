@@ -1,24 +1,24 @@
 import { useState, useEffect, useRef } from 'react';
 import type { InventoryItem } from '../lib/supabase';
 
-interface ProductModalProps {
-  product: InventoryItem;
-  onClose: () => void;
-}
+interface Props { product: InventoryItem; onClose: () => void; }
+type Media = { type: 'image' | 'video'; url: string };
 
-type MediaItem = { type: 'image'; url: string } | { type: 'video'; url: string };
-
-export default function ProductModal({ product, onClose }: ProductModalProps) {
+export default function ProductModal({ product, onClose }: Props) {
   const [idx, setIdx] = useState(0);
-  const touchX = useRef(0);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const startX = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const images = product.images ? product.images.split(',').map(u => u.trim()).filter(Boolean) : [];
   const videos = product.videos ? product.videos.split(',').map(u => u.trim()).filter(Boolean) : [];
-  const media: MediaItem[] = [
-    ...images.map((url): MediaItem => ({ type: 'image', url })),
-    ...videos.map((url): MediaItem => ({ type: 'video', url })),
-  ];
+  const media: Media[] = [...images.map((url): Media => ({ type: 'image', url })), ...videos.map((url): Media => ({ type: 'video', url }))];
   const total = media.length;
+
+  const pieces = Number(product.pieces) || 1;
+  const unitPrice = Number(product.selling_price) || 0;
+  const totalPrice = unitPrice * pieces;
 
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
@@ -31,17 +31,23 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
     return () => { document.removeEventListener('keydown', fn); document.body.style.overflow = ''; };
   }, [onClose, total]);
 
-  const cur = media[idx];
-
-  const pieces = Number(product.pieces) || 1;
-  const unitPrice = Number(product.selling_price) || 0;
-  const totalPrice = unitPrice * pieces;
+  // Drag/swipe handlers
+  const onDragStart = (clientX: number) => { setDragging(true); startX.current = clientX; };
+  const onDragMove = (clientX: number) => { if (dragging) setDragX(clientX - startX.current); };
+  const onDragEnd = () => {
+    if (!dragging) return;
+    setDragging(false);
+    if (total > 1) {
+      if (dragX < -60) setIdx(i => (i + 1) % total);
+      else if (dragX > 60) setIdx(i => (i - 1 + total) % total);
+    }
+    setDragX(0);
+  };
 
   const wp = `Hi! I'm interested in "${product.item_name}" (£${totalPrice.toLocaleString()}${pieces > 1 ? ' for ' + pieces + ' pieces' : ''}). Please let me know the shipping cost to my country.`;
   const wu = `https://wa.me/923238226427?text=${encodeURIComponent(wp)}`;
-  const es = `Inquiry: ${product.item_name}`;
   const eb = `Hi EraVault,\n\nI'm interested in "${product.item_name}" (£${totalPrice.toLocaleString()}${pieces > 1 ? ' for ' + pieces + ' pieces' : ''}).\n\nPlease let me know the shipping cost to my country.\n\nThank you!`;
-  const eu = `mailto:eravaultvintage@gmail.com?subject=${encodeURIComponent(es)}&body=${encodeURIComponent(eb)}`;
+  const eu = `mailto:eravaultvintage@gmail.com?subject=${encodeURIComponent('Inquiry: ' + product.item_name)}&body=${encodeURIComponent(eb)}`;
 
   const cond = () => {
     const c = product.condition?.toLowerCase();
@@ -51,88 +57,114 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
     return 'from-gray-500 to-gray-600';
   };
 
+  const slideOffset = dragging ? dragX : 0;
+
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center modal-overlay" onClick={onClose}>
       <div className="absolute inset-0 bg-black/85" />
 
-      {/* Modal */}
-      <div className="relative w-full sm:w-[95vw] md:w-auto md:max-w-5xl max-h-[96vh] sm:max-h-[92vh] rounded-t-3xl sm:rounded-3xl overflow-hidden modal-content shadow-2xl shadow-black/50" onClick={e => e.stopPropagation()}>
-        
-        {/* Glow border */}
-        <div className="absolute -inset-px rounded-t-3xl sm:rounded-3xl bg-gradient-to-br from-brand-400/40 via-transparent to-brand-500/30 pointer-events-none z-10" />
-
+      <div className="relative w-full sm:w-[95vw] md:w-auto md:max-w-5xl max-h-[96vh] sm:max-h-[92vh] rounded-t-3xl sm:rounded-3xl overflow-hidden modal-content shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="relative bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden">
           {/* Close */}
-          <button onClick={onClose} className="absolute top-3 right-3 z-30 w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md flex items-center justify-center transition-all duration-200 group">
+          <button onClick={onClose} className="absolute top-3 right-3 z-30 w-10 h-10 rounded-full bg-black/30 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-all group">
             <svg className="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
 
           <div className="md:flex max-h-[96vh] sm:max-h-[92vh]">
-            {/* ── Media ── */}
-            <div className="md:w-[55%] relative bg-black flex-shrink-0">
+            {/* ── Media Gallery — SLIDING CAROUSEL ── */}
+            <div className="md:w-[55%] relative bg-brand-50 flex-shrink-0 select-none">
               <div
-                className="relative w-full aspect-[4/5] sm:aspect-square md:aspect-auto md:h-full flex items-center justify-center overflow-hidden"
-                onTouchStart={e => { touchX.current = e.touches[0].clientX; }}
-                onTouchEnd={e => {
-                  const diff = touchX.current - e.changedTouches[0].clientX;
-                  if (total > 1 && Math.abs(diff) > 50) setIdx(i => diff > 0 ? (i + 1) % total : (i - 1 + total) % total);
-                }}
+                ref={containerRef}
+                className="relative w-full aspect-[4/5] sm:aspect-square md:aspect-auto md:h-full overflow-hidden cursor-grab active:cursor-grabbing"
+                onMouseDown={e => onDragStart(e.clientX)}
+                onMouseMove={e => onDragMove(e.clientX)}
+                onMouseUp={onDragEnd}
+                onMouseLeave={() => { if (dragging) onDragEnd(); }}
+                onTouchStart={e => onDragStart(e.touches[0].clientX)}
+                onTouchMove={e => onDragMove(e.touches[0].clientX)}
+                onTouchEnd={onDragEnd}
               >
-                {total > 0 ? (
-                  cur.type === 'image' ? (
-                    <img key={idx} src={cur.url} alt={product.item_name} className="w-full h-full object-contain transition-opacity duration-300" />
-                  ) : (
-                    <video key={idx} src={cur.url} controls autoPlay playsInline className="w-full h-full object-contain" />
-                  )
-                ) : (
-                  <div className="text-white/20 flex flex-col items-center gap-2">
+                {/* Sliding strip — all images in a row, translateX to slide */}
+                <div
+                  className="flex h-full"
+                  style={{
+                    width: `${total * 100}%`,
+                    transform: `translateX(calc(-${idx * (100 / total)}% + ${slideOffset}px))`,
+                    transition: dragging ? 'none' : 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
+                  }}
+                >
+                  {media.map((item, i) => (
+                    <div key={i} className="flex items-center justify-center bg-brand-50" style={{ width: `${100 / total}%` }}>
+                      {item.type === 'image' ? (
+                        <img src={item.url} alt={product.item_name} className="w-full h-full object-contain" draggable={false} />
+                      ) : (
+                        <video src={item.url} controls={i === idx} playsInline className="w-full h-full object-contain" draggable={false} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* No media placeholder */}
+                {total === 0 && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-brand-300 gap-2">
                     <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     <span className="text-xs">No media</span>
                   </div>
                 )}
 
                 {/* Arrows */}
-                {total > 1 && (
+                {total > 1 && !dragging && (
                   <>
-                    <button onClick={() => setIdx(i => (i - 1 + total) % total)} className="absolute left-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-md flex items-center justify-center transition-all duration-200 active:scale-90">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+                    <button onClick={e => { e.stopPropagation(); setIdx(i => (i - 1 + total) % total); }} className="absolute left-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/80 hover:bg-white shadow-lg flex items-center justify-center transition-all active:scale-90 z-10">
+                      <svg className="w-5 h-5 text-brand-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
                     </button>
-                    <button onClick={() => setIdx(i => (i + 1) % total)} className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-md flex items-center justify-center transition-all duration-200 active:scale-90">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                    <button onClick={e => { e.stopPropagation(); setIdx(i => (i + 1) % total); }} className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/80 hover:bg-white shadow-lg flex items-center justify-center transition-all active:scale-90 z-10">
+                      <svg className="w-5 h-5 text-brand-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
                     </button>
                   </>
                 )}
 
-                {/* Counter */}
+                {/* Counter pill */}
                 {total > 1 && (
-                  <div className="absolute top-3 left-3 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-xs font-bold">
+                  <div className="absolute top-3 left-3 px-3 py-1.5 rounded-full bg-white/90 shadow-md text-brand-800 text-xs font-bold z-10">
                     {idx + 1} / {total}
                   </div>
                 )}
 
                 {/* Video badge */}
-                {cur?.type === 'video' && (
-                  <div className="absolute top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-red-500/90 text-white text-xs font-bold flex items-center gap-2">
+                {media[idx]?.type === 'video' && (
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center gap-2 z-10 shadow-lg">
                     <div className="w-2 h-2 rounded-full bg-white animate-pulse" />VIDEO
                   </div>
                 )}
-
-                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
               </div>
 
-              {/* Thumbnails */}
+              {/* Dot indicators */}
               {total > 1 && (
-                <div className="flex gap-1.5 p-2.5 overflow-x-auto hide-scrollbar bg-black/90">
+                <div className="flex justify-center gap-1.5 py-3 bg-white">
                   {media.map((item, i) => (
                     <button key={i} onClick={() => setIdx(i)}
-                      className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden transition-all duration-200 ${
-                        i === idx ? 'ring-2 ring-brand-400 ring-offset-2 ring-offset-black scale-110' : 'opacity-40 hover:opacity-80'
+                      className={`rounded-full transition-all duration-300 ${i === idx ? 'w-7 h-2.5 bg-brand-500' : 'w-2.5 h-2.5 bg-brand-200 hover:bg-brand-300'}`}
+                    >
+                      {item.type === 'video' && i !== idx && <div className="w-full h-full rounded-full border-2 border-red-400" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Thumbnails strip */}
+              {total > 1 && (
+                <div className="flex gap-1.5 px-3 pb-3 overflow-x-auto hide-scrollbar bg-white">
+                  {media.map((item, i) => (
+                    <button key={i} onClick={() => setIdx(i)}
+                      className={`relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden transition-all duration-200 ${
+                        i === idx ? 'ring-2 ring-brand-500 ring-offset-2 scale-105' : 'opacity-50 hover:opacity-80'
                       }`}>
                       {item.type === 'image' ? (
                         <img src={item.url} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                          <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                        <div className="w-full h-full bg-brand-100 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                         </div>
                       )}
                       {item.type === 'video' && (
@@ -153,27 +185,25 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider">{product.category}</span>
                   {product.condition && <span className={`px-3 py-1 rounded-full bg-gradient-to-r ${cond()} text-white text-xs font-bold shadow-sm`}>{product.condition}</span>}
-                  {product.pieces !== undefined && product.pieces <= 1 && <span className="px-3 py-1 rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold animate-pulse">Last Piece!</span>}
+                  {pieces <= 1 && <span className="px-3 py-1 rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold animate-pulse">Last Piece!</span>}
                 </div>
 
                 <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-950 leading-tight">{product.item_name}</h2>
 
+                {/* Price */}
                 <div>
                   <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent">£{totalPrice.toLocaleString()}</p>
-                  {pieces > 1 && (
-                    <p className="text-sm text-brand-600 mt-1 font-medium">
-                      £{unitPrice.toLocaleString()} × {pieces} pieces
-                    </p>
-                  )}
+                  {pieces > 1 && <p className="text-sm text-brand-600 mt-1 font-medium">£{unitPrice.toLocaleString()} × {pieces} pieces</p>}
                   <p className="text-xs text-brand-400 mt-1 flex items-center gap-1.5">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     + Shipping (depends on your country)
                   </p>
                 </div>
 
+                {/* Details */}
                 <div className="flex flex-wrap gap-2">
                   {product.size && <div className="px-4 py-2.5 bg-brand-50 rounded-xl border border-brand-200/60"><span className="text-[10px] text-brand-500 uppercase font-bold">Size</span><p className="font-bold text-brand-900 text-sm -mt-0.5">{product.size}</p></div>}
-                  {product.pieces !== undefined && <div className="px-4 py-2.5 bg-brand-50 rounded-xl border border-brand-200/60"><span className="text-[10px] text-brand-500 uppercase font-bold">Stock</span><p className="font-bold text-brand-900 text-sm -mt-0.5">{product.pieces} pc{product.pieces !== 1 ? 's' : ''}</p></div>}
+                  {pieces > 0 && <div className="px-4 py-2.5 bg-brand-50 rounded-xl border border-brand-200/60"><span className="text-[10px] text-brand-500 uppercase font-bold">Stock</span><p className="font-bold text-brand-900 text-sm -mt-0.5">{pieces} pc{pieces !== 1 ? 's' : ''}</p></div>}
                 </div>
 
                 {/* Shipping */}
