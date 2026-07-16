@@ -61,8 +61,8 @@ export default function App() {
       {/* Features Strip */}
       <div className="bg-white border-b border-brand-100 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-brand-50/50 via-white to-brand-50/50" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 relative">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
             {[
               { icon: '✓', text: '100% Authentic', color: 'text-emerald-600' },
               { icon: '📦', text: 'Secure Packaging', color: 'text-blue-600' },
@@ -71,11 +71,11 @@ export default function App() {
             ].map((item, i) => (
               <div 
                 key={i} 
-                className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-white to-brand-50 border border-brand-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 animate-fade-in-up"
+                className="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-white to-brand-50 border border-brand-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 animate-fade-in-up"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <span className={`text-2xl ${item.color}`}>{item.icon}</span>
-                <span className="font-semibold text-brand-800">{item.text}</span>
+                <span className="font-semibold text-brand-800 text-xs sm:text-sm">{item.text}</span>
               </div>
             ))}
           </div>

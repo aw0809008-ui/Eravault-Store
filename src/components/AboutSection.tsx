@@ -34,7 +34,7 @@ export default function AboutSection() {
   ];
 
   return (
-    <section id="about" className="py-20 md:py-32 bg-white relative overflow-hidden">
+    <section id="about" className="py-12 sm:py-20 md:py-32 bg-white relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-50/50 to-transparent" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-100/30 rounded-full blur-3xl" />
@@ -46,10 +46,10 @@ export default function AboutSection() {
             <span className="inline-block px-4 py-1.5 bg-brand-100 text-brand-600 text-sm font-bold uppercase tracking-wider rounded-full mb-4">
               Our Story
             </span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-950 mb-8 leading-tight">
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-brand-950 mb-6 sm:mb-8 leading-tight">
               About <span className="gradient-text">EraVault</span>
             </h2>
-            <div className="space-y-6 text-brand-700 text-lg leading-relaxed">
+            <div className="space-y-4 sm:space-y-6 text-brand-700 text-base sm:text-lg leading-relaxed">
               <p>
                 EraVault is more than just a store — it's a treasure trove of fashion history. 
                 We specialize in sourcing and curating premium vintage and pre-owned fashion 

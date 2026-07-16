@@ -47,28 +47,28 @@ export default function ShopSection({ products, categories, loading, onSelectPro
   }, [products, activeCategory, searchQuery, sortBy]);
 
   return (
-    <section id="shop" className="py-20 md:py-32 bg-gradient-to-b from-brand-50 via-white to-brand-50">
+    <section id="shop" className="py-12 sm:py-20 md:py-32 bg-gradient-to-b from-brand-50 via-white to-brand-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 bg-brand-100 text-brand-600 text-sm font-bold uppercase tracking-wider rounded-full mb-4">
+        <div className="text-center mb-8 sm:mb-16">
+          <span className="inline-block px-3 sm:px-4 py-1.5 bg-brand-100 text-brand-600 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full mb-3 sm:mb-4">
             Our Collection
           </span>
-          <h2 className="font-display text-4xl md:text-6xl font-bold text-brand-950 mb-6">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-6xl font-bold text-brand-950 mb-4 sm:mb-6">
             Shop the <span className="gradient-text">Vault</span>
           </h2>
-          <p className="text-brand-600 max-w-2xl mx-auto text-lg">
+          <p className="text-brand-600 max-w-2xl mx-auto text-sm sm:text-lg px-2">
             Browse our curated selection of premium vintage and pre-owned fashion pieces.
           </p>
         </div>
 
         {/* Search & Filters */}
-        <div className="mb-12 space-y-6">
+        <div className="mb-8 sm:mb-12 space-y-4 sm:space-y-6">
           {/* Search Bar */}
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto px-1">
             <div className="relative group">
               <svg
-                className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-brand-400 transition-colors group-focus-within:text-brand-600"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-brand-400 transition-colors group-focus-within:text-brand-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -80,7 +80,7 @@ export default function ShopSection({ products, categories, loading, onSelectPro
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-14 pr-5 py-5 bg-white border-2 border-brand-200 rounded-2xl text-brand-900 placeholder-brand-400 focus:border-brand-500 transition-all shadow-lg shadow-brand-900/5 text-lg"
+                className="w-full pl-12 sm:pl-14 pr-4 py-3.5 sm:py-5 bg-white border-2 border-brand-200 rounded-2xl text-brand-900 placeholder-brand-400 focus:border-brand-500 transition-all shadow-lg shadow-brand-900/5 text-sm sm:text-lg"
               />
               {searchQuery && (
                 <button
@@ -96,10 +96,10 @@ export default function ShopSection({ products, categories, loading, onSelectPro
           </div>
 
           {/* Categories */}
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 px-1">
             <button
               onClick={() => setActiveCategory('All')}
-              className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
+              className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 ${
                 activeCategory === 'All'
                   ? 'bg-gradient-to-r from-brand-700 to-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105'
                   : 'bg-white text-brand-700 hover:bg-brand-50 border-2 border-brand-200 hover:border-brand-300'
@@ -113,7 +113,7 @@ export default function ShopSection({ products, categories, loading, onSelectPro
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
+                  className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 ${
                     activeCategory === cat
                       ? 'bg-gradient-to-r from-brand-700 to-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105'
                       : 'bg-white text-brand-700 hover:bg-brand-50 border-2 border-brand-200 hover:border-brand-300'
@@ -145,7 +145,7 @@ export default function ShopSection({ products, categories, loading, onSelectPro
 
         {/* Product Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="bg-white rounded-3xl overflow-hidden shadow-lg">
                 <div className="aspect-[4/5] skeleton" />
@@ -158,7 +158,7 @@ export default function ShopSection({ products, categories, loading, onSelectPro
             ))}
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {filteredProducts.map((product, i) => (
               <ProductCard
                 key={product.id || i}

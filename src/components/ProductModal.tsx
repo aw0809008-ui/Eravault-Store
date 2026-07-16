@@ -64,15 +64,15 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
 
       {/* Modal */}
       <div
-        className="relative bg-white rounded-3xl w-full max-w-5xl max-h-[95vh] overflow-hidden shadow-2xl modal-content"
+        className="relative bg-white rounded-2xl sm:rounded-3xl w-full max-w-5xl max-h-[95vh] overflow-y-auto shadow-2xl modal-content"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 w-12 h-12 rounded-full bg-white/90 hover:bg-white shadow-xl flex items-center justify-center transition-all hover:scale-110 hover:rotate-90"
+          className="absolute top-3 right-3 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white shadow-xl flex items-center justify-center transition-all hover:scale-110"
         >
-          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -153,7 +153,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
           </div>
 
           {/* Product Details */}
-          <div className="md:w-1/2 p-6 sm:p-10 flex flex-col max-h-[60vh] md:max-h-[95vh] overflow-y-auto">
+          <div className="md:w-1/2 p-5 sm:p-8 flex flex-col">
             <p className="text-sm text-brand-500 font-bold uppercase tracking-wider mb-2">
               {product.category}
             </p>
@@ -281,7 +281,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
-                  0323-8226427
+                  +92 323 8226427
                 </span>
                 <span>•</span>
                 <span>eravaultvintage@gmail.com</span>

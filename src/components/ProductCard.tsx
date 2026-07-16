@@ -77,19 +77,19 @@ export default function ProductCard({ product, index, onSelect }: ProductCardPro
       </div>
 
       {/* Info */}
-      <div className="p-5 card-3d-content">
-        <p className="text-xs text-brand-500 font-semibold uppercase tracking-wider mb-2">
+      <div className="p-3 sm:p-5 card-3d-content">
+        <p className="text-[10px] sm:text-xs text-brand-500 font-semibold uppercase tracking-wider mb-1 sm:mb-2">
           {product.category}
         </p>
-        <h3 className="font-bold text-brand-950 text-lg leading-tight mb-3 line-clamp-2 group-hover:text-brand-700 transition-colors">
+        <h3 className="font-bold text-brand-950 text-sm sm:text-lg leading-tight mb-2 sm:mb-3 line-clamp-2 group-hover:text-brand-700 transition-colors">
           {product.item_name}
         </h3>
         <div className="flex items-center justify-between">
-          <p className="text-2xl font-black bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent">
+          <p className="text-lg sm:text-2xl font-black bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent">
             £{Number(product.selling_price).toLocaleString()}
           </p>
           {product.size && (
-            <span className="text-xs text-brand-600 bg-brand-100 px-3 py-1.5 rounded-full font-semibold">
+            <span className="hidden sm:inline text-xs text-brand-600 bg-brand-100 px-3 py-1.5 rounded-full font-semibold">
               {product.size}
             </span>
           )}

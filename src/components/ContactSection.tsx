@@ -39,7 +39,7 @@ export default function ContactSection() {
   ];
 
   return (
-    <section id="contact" className="py-20 md:py-32 bg-gradient-to-br from-brand-950 via-[#1a1a2e] to-brand-950 text-white relative overflow-hidden">
+    <section id="contact" className="py-12 sm:py-20 md:py-32 bg-gradient-to-br from-brand-950 via-[#1a1a2e] to-brand-950 text-white relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl animate-float" />
@@ -51,7 +51,7 @@ export default function ContactSection() {
           <span className="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm font-bold uppercase tracking-wider rounded-full mb-4">
             Get In Touch
           </span>
-          <h2 className="font-display text-4xl md:text-6xl font-bold mb-6">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">
             Contact <span className="gradient-text">Us</span>
           </h2>
           <p className="text-white/60 max-w-xl mx-auto text-lg">
