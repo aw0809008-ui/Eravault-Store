@@ -25,7 +25,6 @@ export default function ProductCard({ product, index, onSelect }: ProductCardPro
     }
   };
 
-  // 3D tilt — desktop only
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current || window.innerWidth < 768) return;
     const rect = cardRef.current.getBoundingClientRect();
@@ -74,7 +73,6 @@ export default function ProductCard({ product, index, onSelect }: ProductCardPro
           </div>
         )}
 
-        {/* Pieces count */}
         {pieces > 1 && (
           <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold">
             {pieces} pcs
@@ -88,12 +86,10 @@ export default function ProductCard({ product, index, onSelect }: ProductCardPro
         <h3 className="font-bold text-brand-950 text-sm sm:text-lg leading-tight mb-2 sm:mb-3 line-clamp-2 group-hover:text-brand-700 transition-colors">{product.item_name}</h3>
         
         <div className="space-y-1">
-          {/* Total Price (price × pieces) */}
           <p className="text-lg sm:text-2xl font-black bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent">
             £{totalPrice.toLocaleString()}
           </p>
           
-          {/* Price breakdown if multiple pieces */}
           {pieces > 1 && (
             <p className="text-[10px] sm:text-xs text-brand-400">
               £{unitPrice.toLocaleString()} × {pieces} pieces
@@ -103,12 +99,8 @@ export default function ProductCard({ product, index, onSelect }: ProductCardPro
 
         <div className="flex items-center justify-between mt-2">
           <p className="text-[10px] text-brand-400 flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            + Shipping
+            {product.size && <><span>📏</span> {product.size}</>}
           </p>
-          {product.size && (
-            <span className="hidden sm:inline text-[10px] text-brand-600 bg-brand-100 px-2.5 py-1 rounded-full font-semibold">{product.size}</span>
-          )}
         </div>
       </div>
     </div>

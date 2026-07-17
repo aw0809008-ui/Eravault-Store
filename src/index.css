@@ -31,7 +31,7 @@ body { font-family: "Inter", sans-serif; background-color: #faf7f2; color: #1a1a
 ::-webkit-scrollbar-track { background: #f0e8d8; }
 ::-webkit-scrollbar-thumb { background: #c49a62; border-radius: 3px; }
 
-/* ── ANIMATIONS ── */
+/* — ANIMATIONS — */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
@@ -40,6 +40,7 @@ body { font-family: "Inter", sans-serif; background-color: #faf7f2; color: #1a1a
 @keyframes floatSlow { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes morphBlob { 0% { border-radius: 60% 40% 30% 70%/60% 30% 70% 40%; } 50% { border-radius: 30% 60% 70% 40%/50% 60% 30% 60%; } 100% { border-radius: 60% 40% 30% 70%/60% 30% 70% 40%; } }
 @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
 .animate-fade-in-up { animation: fadeInUp 0.6s ease-out both; }
 .animate-fade-in { animation: fadeIn 0.4s ease-out both; }
@@ -107,14 +108,7 @@ body { font-family: "Inter", sans-serif; background-color: #faf7f2; color: #1a1a
 
 /* Admin */
 .admin-sidebar { background: linear-gradient(180deg, #1a1a2e, #16213e); }
-.admin-card { background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.08); transition: transform 0.3s, box-shadow 0.3s; }
-.admin-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.2); }
-.data-table { border-collapse: separate; border-spacing: 0; }
-.data-table th { background: linear-gradient(135deg, #1a1a2e, #16213e); position: sticky; top: 0; z-index: 10; }
+.admin-card { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08); }
 
-/* WhatsApp float */
-.whatsapp-float { transition: transform 0.3s, box-shadow 0.3s; }
-.whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 12px 30px rgba(37,211,102,0.4); }
-
-/* Input focus */
-input:focus, select:focus, textarea:focus { outline: none; box-shadow: 0 0 0 3px rgba(196,154,98,0.25); }
+/* Marquee */
+.animate-marquee { animation: marquee 30s linear infinite; }

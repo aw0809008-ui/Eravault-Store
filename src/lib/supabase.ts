@@ -22,7 +22,7 @@ export interface InventoryItem {
   listing_link?: string;
 }
 
-// ── CHAT SYSTEM (E2E Encrypted) ──
+// — CHAT SYSTEM (E2E Encrypted) —
 export interface ChatMessage {
   id?: number;
   chat_id: string;
@@ -79,7 +79,6 @@ export async function sendMessage(chatId: string, sender: 'buyer' | 'admin', tex
   const encrypted = encrypt(text);
   const { error } = await supabase.from('chat_messages').insert([{ chat_id: chatId, sender, message: encrypted }]);
   if (error) { console.error('Send error:', error); return false; }
-  // Update last message + unread count
   await supabase.from('chats').update({ last_message: text.slice(0, 50), updated_at: new Date().toISOString() }).eq('chat_id', chatId);
   const { data: chatData } = await supabase.from('chats').select('unread_admin, unread_buyer').eq('chat_id', chatId).single();
   if (chatData) {
@@ -155,100 +154,6 @@ export async function fetchCategories(): Promise<string[]> {
     console.error('Error fetching categories:', error);
     return [];
   }
-
-  const categories = [...new Set((data || []).map((d: { category: string }) => d.category).filter(Boolean))];
-  return categories as string[];
-}
-
-// Fetch all categories for admin
-export async function fetchAllCategories(): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('inventory')
-    .select('category');
-
-  if (error) {
-    console.error('Error fetching all categories:', error);
-    return [];
-  }
-
-  const categories = [...new Set((data || []).map((d: { category: string }) => d.category).filter(Boolean))];
-  return categories as string[];
-}
-
-// Add new product
-export async function addProduct(product: Omit<InventoryItem, 'id' | 'created_at'>): Promise<InventoryItem | null> {
-  const { data, error } = await supabase
-    .from('inventory')
-    .insert([product])
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error adding product:', error);
-    return null;
-  }
-  return data;
-}
-
-// Update product
-export async function updateProduct(id: number, updates: Partial<InventoryItem>): Promise<boolean> {
-  const { error } = await supabase
-    .from('inventory')
-    .update(updates)
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error updating product:', error);
-    return false;
-  }
-  return true;
-}
-
-// Delete product
-export async function deleteProduct(id: number): Promise<boolean> {
-  const { error } = await supabase
-    .from('inventory')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error deleting product:', error);
-    return false;
-  }
-  return true;
-}
-
-// Toggle show_on_website
-export async function toggleShowOnWebsite(id: number, show: boolean): Promise<boolean> {
-  const { error } = await supabase
-    .from('inventory')
-    .update({ show_on_website: show })
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error toggling show_on_website:', error);
-    return false;
-  }
-  return true;
-}
-
-// Get stats
-export async function getStats() {
-  const { data: allProducts } = await supabase.from('inventory').select('*');
-  const { data: listedProducts } = await supabase.from('inventory').select('*').eq('show_on_website', true);
-  
-  const products = allProducts || [];
-  const listed = listedProducts || [];
-  
-  const totalValue = products.reduce((sum, p) => sum + (Number(p.selling_price) * Number(p.pieces || 1)), 0);
-  const totalPieces = products.reduce((sum, p) => sum + Number(p.pieces || 1), 0);
-  const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
-  
-  return {
-    totalProducts: products.length,
-    listedProducts: listed.length,
-    totalValue,
-    totalPieces,
-    totalCategories: categories.length,
-  };
+  const unique = [...new Set((data || []).map(d => d.category).filter(Boolean))];
+  return unique.sort();
 }

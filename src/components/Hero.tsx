@@ -5,18 +5,32 @@ interface HeroProps { onShopNow: () => void; }
 export default function Hero({ onShopNow }: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const [scroll, setScroll] = useState(0);
+  const [typedText, setTypedText] = useState('');
+  const fullText = 'Timeless Fashion';
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i <= fullText.length) {
+        setTypedText(fullText.slice(0, i));
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 80);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fn = () => {
       const y = window.scrollY;
       const h = window.innerHeight;
-      setScroll(Math.min(y / h, 1)); // 0 to 1 as user scrolls through hero
+      setScroll(Math.min(y / h, 1));
     };
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
   }, []);
 
-  // 3D transforms based on scroll progress (0 → 1)
   const s = scroll;
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
@@ -28,7 +42,7 @@ export default function Hero({ onShopNow }: HeroProps) {
     ? { opacity: 1 - s * 2, transform: `translateY(${s * -60}px)` }
     : { opacity: 1 - s * 1.8, transform: `perspective(1000px) translateY(${s * -120}px) rotateX(${s * 15}deg) scale(${1 - s * 0.15})` };
 
-  const overlayOpacity = 0.6 + s * 0.4; // gets darker as you scroll
+  const overlayOpacity = 0.55 + s * 0.4;
 
   return (
     <section ref={sectionRef} id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -40,7 +54,7 @@ export default function Hero({ onShopNow }: HeroProps) {
       }} />
       
       {/* Overlay — darkens on scroll */}
-      <div className="absolute inset-0" style={{ background: `rgba(0,0,0,${overlayOpacity})` }} />
+      <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, rgba(0,0,0,${overlayOpacity}) 0%, rgba(51,31,20,${overlayOpacity * 0.8}) 100%)` }} />
       
       {/* Floating orbs — desktop only */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none hidden md:block">
@@ -57,9 +71,11 @@ export default function Hero({ onShopNow }: HeroProps) {
           <span className="text-white/90 text-xs sm:text-sm font-medium">Premium Vintage Collection</span>
         </div>
 
-        {/* Title */}
+        {/* Title with typing effect */}
         <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.1] mb-6 sm:mb-8 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-          Discover<br /><span className="gradient-text">Timeless Fashion</span>
+          Discover<br />
+          <span className="gradient-text">{typedText}</span>
+          <span className="animate-pulse text-brand-400">|</span>
         </h1>
         
         {/* Subtitle */}
@@ -80,30 +96,30 @@ export default function Hero({ onShopNow }: HeroProps) {
           <a href="https://instagram.com/Eravault_vintage" target="_blank" rel="noopener noreferrer"
             className="group px-8 sm:px-10 py-3.5 sm:py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-bold rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white/50 hover:scale-105 uppercase tracking-wider text-sm flex items-center justify-center gap-2">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/><circle cx="12" cy="12" r="3.5"/></svg>
-            Instagram
+            Follow Us
           </a>
         </div>
 
         {/* Mini Stats */}
-        <div className="flex justify-center gap-6 sm:gap-10 mt-10 sm:mt-14 animate-fade-in-up" style={{ animationDelay: '1s' }}>
+        <div className="mt-10 sm:mt-16 flex justify-center gap-8 sm:gap-16 animate-fade-in-up" style={{ animationDelay: '1s' }}>
           {[{ val: '500+', label: 'Items Sold' }, { val: '100%', label: 'Authentic' }, { val: '🌍', label: 'Worldwide' }].map((s, i) => (
             <div key={i} className="text-center">
-              <p className="text-white text-xl sm:text-2xl font-bold">{s.val}</p>
-              <p className="text-white/40 text-[10px] sm:text-xs uppercase tracking-wider mt-0.5">{s.label}</p>
+              <div className="text-white font-display font-bold text-xl sm:text-2xl">{s.val}</div>
+              <div className="text-white/50 text-[10px] sm:text-xs uppercase tracking-wider mt-1">{s.label}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* Scroll indicator — hides as you scroll */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce transition-opacity" style={{ opacity: 1 - s * 3 }}>
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-1.5">
-          <div className="w-1.5 h-2.5 bg-white/60 rounded-full animate-pulse" />
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 transition-opacity" style={{ opacity: 1 - scroll * 4 }}>
+        <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-1.5">
+          <div className="w-1.5 h-3 rounded-full bg-white/60 animate-float" />
         </div>
       </div>
 
       {/* Bottom gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-brand-50 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32" style={{ background: 'linear-gradient(to top, #faf7f2, transparent)' }} />
     </section>
   );
 }
