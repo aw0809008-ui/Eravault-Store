@@ -3,12 +3,9 @@ import { fetchInventory, fetchCategories } from './lib/supabase';
 import type { InventoryItem } from './lib/supabase';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import BrandsMarquee from './components/BrandsMarquee';
 import ShopSection from './components/ShopSection';
 import AboutSection from './components/AboutSection';
-import TestimonialsSection from './components/TestimonialsSection';
 import ContactSection from './components/ContactSection';
-import NewsletterSection from './components/NewsletterSection';
 import Footer from './components/Footer';
 import ProductModal from './components/ProductModal';
 
@@ -95,9 +92,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Brands Marquee - NEW */}
-      <BrandsMarquee />
-
       <ShopSection
         products={products}
         categories={categories}
@@ -105,15 +99,7 @@ export default function App() {
         onSelectProduct={handleSelectProduct}
       />
       <AboutSection />
-      
-      {/* Testimonials - NEW */}
-      <TestimonialsSection />
-      
       <ContactSection />
-      
-      {/* Newsletter - NEW */}
-      <NewsletterSection />
-      
       <Footer />
 
       <BackToTop />
