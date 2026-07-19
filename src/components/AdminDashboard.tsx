@@ -413,23 +413,41 @@ function ProductForm({ product, categories, onSave, onCancel }: {
   );
 }
 
-// ── ADMIN CHAT INBOX ──
+// ── ADMIN CHAT INBOX (Fixed) ──
 function AdminChatInbox() {
   const [chats, setChats] = useState<ChatSession[]>([]);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { getAllChats().then(setChats); }, []);
+  useEffect(() => {
+    getAllChats()
+      .then(setChats)
+      .catch(err => { console.error('Failed to load chats:', err); setError('Failed to load chats'); });
+  }, []);
 
   useEffect(() => {
     if (!activeChat) return;
-    getMessages(activeChat).then(setMessages);
-    markRead(activeChat, 'admin');
-    const ch = subscribeToMessages(activeChat, (msg) => setMessages(prev => [...prev, msg]));
-    return () => { ch.unsubscribe(); };
+    let channel: ReturnType<typeof subscribeToMessages> | null = null;
+    
+    getMessages(activeChat)
+      .then(setMessages)
+      .catch(err => console.error('Failed to load messages:', err));
+    
+    markRead(activeChat, 'admin').catch(() => {});
+    
+    try {
+      channel = subscribeToMessages(activeChat, (msg) => setMessages(prev => [...prev, msg]));
+    } catch (err) {
+      console.error('Realtime subscription failed:', err);
+    }
+    
+    return () => {
+      try { channel?.unsubscribe(); } catch {}
+    };
   }, [activeChat]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -437,11 +455,15 @@ function AdminChatInbox() {
   const sendReply = async () => {
     if (!reply.trim() || !activeChat || sending) return;
     setSending(true);
-    await sendMessage(activeChat, 'admin', reply.trim());
-    setReply('');
+    try {
+      await sendMessage(activeChat, 'admin', reply.trim());
+      setReply('');
+      getMessages(activeChat).then(setMessages).catch(() => {});
+      getAllChats().then(setChats).catch(() => {});
+    } catch (err) {
+      console.error('Failed to send:', err);
+    }
     setSending(false);
-    getMessages(activeChat).then(setMessages);
-    getAllChats().then(setChats);
   };
 
   if (activeChat) {
@@ -461,6 +483,7 @@ function AdminChatInbox() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+          {messages.length === 0 && <p className="text-center text-white/30 py-8 text-sm">No messages yet</p>}
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[75%] px-3.5 py-2.5 rounded-2xl text-sm ${m.sender === 'admin' ? 'bg-brand-600 text-white rounded-br-md' : 'bg-white/10 text-white border border-white/10 rounded-bl-md'}`}>
@@ -488,6 +511,7 @@ function AdminChatInbox() {
 
   return (
     <div className="space-y-4 animate-fade-in">
+      {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl">{error}</p>}
       <p className="text-white/50 text-sm">{chats.length} conversation{chats.length !== 1 ? 's' : ''}</p>
       {chats.length === 0 ? (
         <div className="text-center py-16 text-white/30">
