@@ -413,41 +413,59 @@ function ProductForm({ product, categories, onSave, onCancel }: {
   );
 }
 
-// ── ADMIN CHAT INBOX (Fixed) ──
+// ── ADMIN CHAT INBOX — Upgraded UI ──
 function AdminChatInbox() {
   const [chats, setChats] = useState<ChatSession[]>([]);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
+  const [loadingChats, setLoadingChats] = useState(true);
   const [error, setError] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    getAllChats()
-      .then(setChats)
-      .catch(err => { console.error('Failed to load chats:', err); setError('Failed to load chats'); });
-  }, []);
+  const ago = (d?: string) => {
+    if (!d) return '';
+    const ms = Date.now() - new Date(d).getTime();
+    if (ms < 60000) return 'now';
+    if (ms < 3600000) return Math.floor(ms / 60000) + 'm';
+    if (ms < 86400000) return new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(d).toLocaleDateString([], { day: 'numeric', month: 'short' });
+  };
+
+  const loadChats = async () => {
+    try {
+      const data = await getAllChats();
+      setChats(data);
+      setError('');
+    } catch (err) {
+      console.error('Failed to load chats:', err);
+      setError('Failed to load chats');
+    } finally {
+      setLoadingChats(false);
+    }
+  };
+
+  useEffect(() => { loadChats(); }, []);
 
   useEffect(() => {
     if (!activeChat) return;
     let channel: ReturnType<typeof subscribeToMessages> | null = null;
-    
-    getMessages(activeChat)
-      .then(setMessages)
-      .catch(err => console.error('Failed to load messages:', err));
-    
+
+    getMessages(activeChat).then(setMessages).catch(err => console.error('Messages error:', err));
     markRead(activeChat, 'admin').catch(() => {});
-    
+    setChats(prev => prev.map(c => c.chat_id === activeChat ? { ...c, unread_admin: 0 } : c));
+
     try {
-      channel = subscribeToMessages(activeChat, (msg) => setMessages(prev => [...prev, msg]));
+      channel = subscribeToMessages(activeChat, (msg) => {
+        setMessages(prev => [...prev, msg]);
+        loadChats();
+      });
     } catch (err) {
-      console.error('Realtime subscription failed:', err);
+      console.error('Realtime failed:', err);
     }
-    
-    return () => {
-      try { channel?.unsubscribe(); } catch {}
-    };
+
+    return () => { try { channel?.unsubscribe(); } catch {} };
   }, [activeChat]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -459,84 +477,139 @@ function AdminChatInbox() {
       await sendMessage(activeChat, 'admin', reply.trim());
       setReply('');
       getMessages(activeChat).then(setMessages).catch(() => {});
-      getAllChats().then(setChats).catch(() => {});
+      loadChats();
     } catch (err) {
-      console.error('Failed to send:', err);
+      console.error('Send failed:', err);
     }
     setSending(false);
   };
 
+  const currentChat = chats.find(c => c.chat_id === activeChat);
+
+  // ─── Conversation View ───
   if (activeChat) {
-    const chat = chats.find(c => c.chat_id === activeChat);
     return (
-      <div className="flex flex-col h-[calc(100vh-200px)] animate-fade-in">
-        {/* Chat header */}
-        <div className="flex items-center gap-3 pb-4 border-b border-white/10 mb-4">
-          <button onClick={() => setActiveChat(null)} className="p-2 bg-white/10 rounded-lg text-white hover:bg-white/20">
+      <div className="flex flex-col" style={{ height: 'calc(100vh - 160px)', minHeight: '400px' }}>
+        {/* Header */}
+        <div className="flex items-center gap-3 pb-3 mb-3 border-b border-white/10 animate-fade-in">
+          <button onClick={() => setActiveChat(null)} className="p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <div>
-            <p className="text-white font-bold text-sm">{chat?.buyer_name || 'Buyer'}</p>
-            <p className="text-white/50 text-xs">{chat?.buyer_email} • 🔒 Encrypted</p>
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            {currentChat?.buyer_name?.charAt(0).toUpperCase() || '?'}
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-bold text-sm truncate">{currentChat?.buyer_name || 'Buyer'}</p>
+            <p className="text-white/40 text-[11px] truncate">{currentChat?.buyer_email} · 🔒 Encrypted</p>
+          </div>
+          {currentChat?.buyer_email && (
+            <a href={`mailto:${currentChat.buyer_email}`} title="Email buyer" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors flex-shrink-0">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+            </a>
+          )}
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-          {messages.length === 0 && <p className="text-center text-white/30 py-8 text-sm">No messages yet</p>}
-          {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[75%] px-3.5 py-2.5 rounded-2xl text-sm ${m.sender === 'admin' ? 'bg-brand-600 text-white rounded-br-md' : 'bg-white/10 text-white border border-white/10 rounded-bl-md'}`}>
-                <p className="break-words">{m.message}</p>
-                <p className={`text-[9px] mt-1 ${m.sender === 'admin' ? 'text-white/50' : 'text-white/30'}`}>
-                  {m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                </p>
-              </div>
+        <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-0">
+          {messages.length === 0 && (
+            <div className="flex items-center justify-center h-full text-white/20 text-sm">
+              Loading messages…
             </div>
-          ))}
+          )}
+          {messages.map((m, i) => {
+            const mine = m.sender === 'admin';
+            return (
+              <div key={m.id || i} className={`flex ${mine ? 'justify-end' : 'justify-start'} animate-fade-in`} style={{ animationDelay: Math.min(i * 20, 200) + 'ms' }}>
+                <div className={`max-w-[78%] px-3.5 py-2 text-[13px] leading-relaxed ${mine
+                  ? 'bg-gradient-to-br from-brand-600 to-brand-700 text-white rounded-2xl rounded-br-md shadow-md'
+                  : 'bg-white/[0.07] text-white/90 border border-white/10 rounded-2xl rounded-bl-md'
+                }`}>
+                  <p className="break-words whitespace-pre-wrap">{m.message}</p>
+                  <p className={`text-[9px] mt-1 ${mine ? 'text-white/40' : 'text-white/20'}`}>
+                    {mine ? '✓ You' : currentChat?.buyer_name || 'Buyer'} · {ago(m.created_at)}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
           <div ref={bottomRef} />
         </div>
 
-        {/* Reply */}
-        <div className="flex gap-2 mt-4 pt-4 border-t border-white/10">
-          <input value={reply} onChange={e => setReply(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') sendReply(); }}
-            placeholder="Type reply..." className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white text-sm placeholder-white/40" />
+        {/* Reply input */}
+        <div className="flex gap-2 mt-3 pt-3 border-t border-white/10">
+          <input
+            value={reply}
+            onChange={e => setReply(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); } }}
+            placeholder="Type your reply…"
+            className="flex-1 px-4 py-2.5 bg-white/[0.06] border border-white/10 rounded-xl text-white text-sm placeholder-white/25 focus:border-brand-500/50 outline-none transition-colors"
+          />
           <button onClick={sendReply} disabled={!reply.trim() || sending}
-            className="px-5 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl disabled:opacity-50 transition-all text-sm">Send</button>
+            className="px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold rounded-xl disabled:opacity-30 hover:shadow-lg hover:shadow-brand-600/25 transition-all text-sm flex items-center gap-1.5 flex-shrink-0">
+            {sending
+              ? <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white" style={{ animation: 'spin .8s linear infinite' }} />
+              : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" /></svg>
+            }
+            Send
+          </button>
         </div>
       </div>
     );
   }
 
+  // ─── Chat List View ───
   return (
-    <div className="space-y-4 animate-fade-in">
-      {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl">{error}</p>}
-      <p className="text-white/50 text-sm">{chats.length} conversation{chats.length !== 1 ? 's' : ''}</p>
-      {chats.length === 0 ? (
-        <div className="text-center py-16 text-white/30">
+    <div className="space-y-3 animate-fade-in">
+      {/* Top bar */}
+      <div className="flex items-center justify-between">
+        <p className="text-white/40 text-sm">{chats.length} conversation{chats.length !== 1 ? 's' : ''}</p>
+        <button onClick={loadChats} className="text-white/30 hover:text-white/60 text-xs flex items-center gap-1 transition-colors">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          Refresh
+        </button>
+      </div>
+
+      {error && <p className="text-red-400/80 text-sm bg-red-500/10 px-4 py-3 rounded-xl">{error}</p>}
+
+      {loadingChats ? (
+        <div className="flex items-center justify-center h-32">
+          <div className="w-7 h-7 rounded-full border-[3px] border-brand-500/25 border-t-brand-500" style={{ animation: 'spin .8s linear infinite' }} />
+        </div>
+      ) : chats.length === 0 ? (
+        <div className="text-center py-14 text-white/20">
           <div className="text-5xl mb-3">💬</div>
-          <p className="font-bold">No chats yet</p>
-          <p className="text-sm mt-1">When buyers message you, they'll appear here.</p>
+          <p className="font-bold text-sm mb-1">No chats yet</p>
+          <p className="text-xs">When buyers message you on the website, they'll appear here.</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {chats.map(chat => (
-            <button key={chat.chat_id} onClick={() => setActiveChat(chat.chat_id)}
-              className="w-full admin-card rounded-xl p-4 text-left flex items-center gap-3 hover:border-brand-500/30">
-              <div className="w-10 h-10 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold flex-shrink-0">
-                {chat.buyer_name?.charAt(0).toUpperCase() || '?'}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="text-white font-semibold text-sm truncate">{chat.buyer_name}</p>
-                  {chat.unread_admin > 0 && <span className="w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">{chat.unread_admin}</span>}
+        <div className="space-y-1.5">
+          {chats.map(chat => {
+            const hasUnread = (chat.unread_admin || 0) > 0;
+            return (
+              <button
+                key={chat.chat_id}
+                onClick={() => setActiveChat(chat.chat_id)}
+                className={`w-full admin-card rounded-xl p-3.5 text-left flex items-center gap-3 transition-all ${hasUnread ? 'border-brand-500/20 bg-brand-500/[0.04]' : ''} hover:border-brand-500/30`}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${hasUnread ? 'bg-gradient-to-br from-brand-500 to-brand-700 text-white ring-2 ring-brand-400/30' : 'bg-brand-500/15 text-brand-400'}`}>
+                  {chat.buyer_name?.charAt(0).toUpperCase() || '?'}
                 </div>
-                <p className="text-white/40 text-xs truncate">{chat.last_message || 'No messages'}</p>
-                <p className="text-white/30 text-[10px] mt-0.5">{chat.buyer_email}</p>
-              </div>
-            </button>
-          ))}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <p className={`text-[13px] truncate ${hasUnread ? 'font-bold text-white' : 'font-semibold text-white/75'}`}>{chat.buyer_name}</p>
+                    <span className="text-[10px] text-white/25 flex-shrink-0">{ago(chat.updated_at)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className={`text-[11px] truncate ${hasUnread ? 'text-white/60' : 'text-white/30'}`}>{chat.last_message || 'No messages yet'}</p>
+                    {hasUnread && (
+                      <span className="w-[18px] h-[18px] rounded-full bg-brand-500 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">{chat.unread_admin}</span>
+                    )}
+                  </div>
+                  <p className="text-white/15 text-[9px] mt-0.5 truncate">{chat.buyer_email}</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
